@@ -80,11 +80,10 @@ body.sky-blue-theme {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--sky-border);
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);
+  /* Màu xanh lá cây đặc trưng Bệnh viện Đa khoa Đức Giang (#0A6836) */
+  background: linear-gradient(135deg, #054C26 0%, #0A6836 45%, #06542B 100%);
+  border-bottom: 2px solid #10B981;
+  box-shadow: 0 3px 14px rgba(6, 84, 43, 0.35);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -101,9 +100,9 @@ body.sky-blue-theme {
 /* Nút hamburger mở menu trên mobile/tablet */
 .btn-hamburger {
   display: none;
-  background: transparent;
-  border: none;
-  color: var(--primary-dark);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
   padding: 0.35rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -113,8 +112,8 @@ body.sky-blue-theme {
 }
 
 .btn-hamburger:hover {
-  background: var(--primary-light);
-  color: var(--primary);
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
 }
 
 .brand-wrapper {
@@ -132,8 +131,8 @@ body.sky-blue-theme {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18);
-  border: 1.5px solid #BAE6FD;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.95);
   padding: 2px;
   flex-shrink: 0;
   transition: var(--transition);
@@ -141,8 +140,8 @@ body.sky-blue-theme {
 
 .brand-wrapper:hover .brand-hospital-logo-box {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
-  border-color: #38BDF8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: #A7F3D0;
 }
 
 .brand-hospital-logo {
@@ -174,42 +173,95 @@ body.sky-blue-theme {
 .brand-title-compact {
   font-size: 0.95rem;
   font-weight: 800;
-  color: var(--primary-deep);
+  color: #FFFFFF;
   line-height: 1.15;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .brand-hospital-compact {
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--secondary);
+  color: #A7F3D0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-/* Tiêu đề giữa header */
-.header-center-title {
+/* ==================== TIÊU ĐỀ SLOGAN: CHUYÊN SÂU - TẬN TÂM - VƯƠN TẦM ==================== */
+.header-slogan-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
 }
 
-.portal-badge-tag {
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  background: #E0F2FE;
-  color: #0369A1;
-  padding: 0.15rem 0.5rem;
+.header-slogan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #FFFFFF;
+  padding: 0.32rem 1.15rem;
   border-radius: 9999px;
-  border: 1px solid #BAE6FD;
+  border: 1.5px solid #A7F3D0;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18), inset 0 1px 0 #FFFFFF;
+  font-size: 0.92rem;
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  user-select: none;
+  transition: all 0.25s ease;
 }
 
-.portal-main-heading {
-  font-size: 0.88rem;
+.header-slogan-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24), inset 0 1px 0 #FFFFFF;
+  border-color: #34D399;
+}
+
+.slogan-badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #DC2626;
+  margin-right: 0.1rem;
+}
+
+.slogan-word {
   font-weight: 800;
-  color: var(--primary-dark);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.015em;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+/* Phối màu chữ Đỏ - Xanh lá cây pha trộn nổi bật */
+.slogan-word.slogan-red {
+  color: #DC2626;
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(220, 38, 38, 0.15));
+}
+
+.slogan-word.slogan-green {
+  color: #0A6836;
+  background: linear-gradient(135deg, #10B981 0%, #06542B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(10, 104, 54, 0.15));
+}
+
+.slogan-word.slogan-blend {
+  color: #DC2626;
+  background: linear-gradient(120deg, #DC2626 0%, #EA580C 30%, #0A6836 75%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(10, 104, 54, 0.15));
+}
+
+.slogan-dash {
+  color: #D97706;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin: 0 0.05rem;
 }
 
 /* Hành động góc phải header */
@@ -223,44 +275,55 @@ body.sky-blue-theme {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: #ECFDF5;
-  border: 1px solid #A7F3D0;
-  padding: 0.3rem 0.65rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 0.32rem 0.7rem;
   border-radius: 9999px;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #065F46;
+  color: #FFFFFF;
   cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: var(--transition);
+}
+
+.supabase-status-pill:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .supabase-status-pill .status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #10B981;
-  box-shadow: 0 0 6px #10B981;
+  background-color: #34D399;
+  box-shadow: 0 0 8px #34D399;
 }
 
 .btn-admin-compact {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background: #F8FAFC;
-  border: 1px solid var(--border-light);
-  padding: 0.32rem 0.7rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 0.32rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: #FFFFFF;
   cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: var(--transition);
 }
 
 .btn-admin-compact:hover {
-  background: var(--primary-light);
-  border-color: var(--primary);
-  color: var(--primary);
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+  color: #0A6836;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* ==================== BỐ CỤC CHÍNH (SIDEBAR + MAIN AREA) ==================== */
@@ -1650,8 +1713,10 @@ body.sky-blue-theme {
     display: inline-flex;
   }
   
-  .header-center-title {
-    display: none;
+  .header-slogan-pill {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.8rem;
+    gap: 0.35rem;
   }
 
   /* Biến Sidebar thành off-canvas drawer trên Tablet & Mobile */
@@ -1691,6 +1756,10 @@ body.sky-blue-theme {
 
   .site-header {
     padding: 0 0.85rem;
+  }
+
+  .header-slogan-wrapper {
+    display: none;
   }
 
   .brand-title-compact {
