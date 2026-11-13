@@ -222,7 +222,8 @@ body.sky-blue-theme {
   align-items: center;
   justify-content: center;
   color: #DC2626;
-  margin-right: 0.1rem;
+  font-size: 0.85rem;
+  filter: drop-shadow(0 1px 1px rgba(220, 38, 38, 0.2));
 }
 
 .slogan-word {
@@ -525,11 +526,16 @@ body.sky-blue-theme {
 }
 
 .sidebar-app-btn.active {
-  background: #FFFFFF;
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
   border-color: #0284C7;
-  border-left: 4px solid #0284C7;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.18);
-  color: #0284C7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28);
+  color: #FFFFFF;
+}
+
+.sidebar-app-btn.active:hover {
+  background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+  border-color: #0284C7;
+  color: #FFFFFF;
 }
 
 .sidebar-app-icon {
@@ -546,11 +552,17 @@ body.sky-blue-theme {
   transition: var(--transition);
 }
 
-.sidebar-app-btn:hover .sidebar-app-icon,
-.sidebar-app-btn.active .sidebar-app-icon {
+.sidebar-app-btn:hover .sidebar-app-icon {
   background: #0284C7;
   color: #FFFFFF;
   border-color: #0284C7;
+}
+
+.sidebar-app-btn.active .sidebar-app-icon {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .sidebar-app-meta {
@@ -570,8 +582,9 @@ body.sky-blue-theme {
 }
 
 .sidebar-app-btn.active .sidebar-app-title {
-  color: #0284C7;
+  color: #FFFFFF;
   font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
 .sidebar-app-category {
@@ -583,16 +596,26 @@ body.sky-blue-theme {
   font-weight: 600;
 }
 
+.sidebar-app-btn.active .sidebar-app-category {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
 .sidebar-app-arrow {
   color: #0284C7;
   opacity: 0.35;
   transition: var(--transition);
 }
 
-.sidebar-app-btn:hover .sidebar-app-arrow,
-.sidebar-app-btn.active .sidebar-app-arrow {
+.sidebar-app-btn:hover .sidebar-app-arrow {
   opacity: 1;
   color: #0284C7;
+}
+
+.sidebar-app-btn.active .sidebar-app-arrow {
+  opacity: 1;
+  color: #FFFFFF;
+  transform: translateX(3px);
 }
 
 /* Khối bác sĩ phụ trách đáy sidebar */

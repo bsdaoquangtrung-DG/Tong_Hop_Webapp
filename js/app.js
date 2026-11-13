@@ -419,6 +419,14 @@ window.openAppViewer = function(appId) {
   if (!app) return;
 
   AppState.currentViewingApp = app;
+  AppState.activeSidebarId = appId;
+
+  // Cập nhật trạng thái active trên sidebar chuyển màu xanh
+  const navItemHome = document.getElementById('navItemHome');
+  if (navItemHome) navItemHome.classList.remove('active');
+  document.querySelectorAll('.sidebar-app-btn').forEach(btn => btn.classList.remove('active'));
+  const currentBtn = document.getElementById(`sidebar-item-${appId}`);
+  if (currentBtn) currentBtn.classList.add('active');
 
   const modal = document.getElementById('appViewerModal');
   const nameEl = document.getElementById('viewerAppName');
