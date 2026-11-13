@@ -1,11 +1,11 @@
 /**
- * CẤU HÌNH DỮ LIỆU DANH MỤC 9 ỨNG DỤNG SỐ THỰC TẾ
+ * CẤU HÌNH DỮ LIỆU DANH MỤC 10 ỨNG DỤNG SỐ THỰC TẾ
  * KHOA VI SINH – BỆNH VIỆN ĐA KHOA ĐỨC GIANG
  * 
  * Người phụ trách: BS.CKII. Đào Quang Trung - Trưởng khoa
  * Địa chỉ: 54 Trường Lâm, Phường Việt Hưng, Quận Long Biên, Hà Nội
  * 
- * Toàn bộ 9 ứng dụng đều là hệ thống thực tế đang hoạt động 100%
+ * Toàn bộ 10 ứng dụng đều là hệ thống thực tế đang hoạt động 100%
  */
 
 const PORTAL_CONFIG = {
@@ -18,7 +18,7 @@ const PORTAL_CONFIG = {
     address: "54 Trường Lâm, Phường Việt Hưng, Quận Long Biên, Hà Nội",
     phone: "0986.70.70.60",
     email: "visinh.bvdkg@gmail.com",
-    portalVersion: "3.3.0",
+    portalVersion: "3.4.0",
     releaseYear: 2026
   },
   
@@ -83,6 +83,19 @@ const PORTAL_CONFIG = {
       sortOrder: 2,
       badge: "Điều hành"
     },
+    {
+      id: "quan-ly-tien-do-cong-viec",
+      name: "Quản lý tiến độ công việc",
+      description: "Theo dõi tiến độ triển khai công việc, dự án, nhiệm vụ trọng tâm của khoa. Giám sát tỷ lệ hoàn thành, mốc thời gian và hạn định xử lý công việc.",
+      category: "Quản lý và điều hành",
+      icon: "ListChecks",
+      url: "https://script.google.com/macros/s/AKfycbxfXnqWbVhFt8c2_0Nn3zE5cSDQHkbRpWg5NkQvlgAFk2FGwZ8RDSZg6mmHGZrnoAo/exec",
+      platform: "Google Apps Script",
+      featured: true,
+      enabled: true,
+      sortOrder: 3,
+      badge: "Tiến độ việc"
+    },
 
     // ==================== NHÓM 2. QUẢN LÝ CHẤT LƯỢNG – ISO 15189 ====================
     {
@@ -95,7 +108,7 @@ const PORTAL_CONFIG = {
       platform: "Vercel / Webapp",
       featured: true,
       enabled: true,
-      sortOrder: 3,
+      sortOrder: 4,
       badge: "Quy trình SOP"
     },
     {
@@ -108,7 +121,7 @@ const PORTAL_CONFIG = {
       platform: "Vercel / Webapp",
       featured: true,
       enabled: true,
-      sortOrder: 4,
+      sortOrder: 5,
       badge: "Nhân sự ISO"
     },
 
@@ -123,7 +136,7 @@ const PORTAL_CONFIG = {
       platform: "Google Apps Script",
       featured: true,
       enabled: true,
-      sortOrder: 5,
+      sortOrder: 6,
       badge: "Hóa chất & Lô"
     },
     {
@@ -136,7 +149,7 @@ const PORTAL_CONFIG = {
       platform: "Google Apps Script",
       featured: true,
       enabled: true,
-      sortOrder: 6,
+      sortOrder: 7,
       badge: "Kho vật tư"
     },
 
@@ -151,7 +164,7 @@ const PORTAL_CONFIG = {
       platform: "Google Apps Script",
       featured: true,
       enabled: true,
-      sortOrder: 7,
+      sortOrder: 8,
       badge: "Tín chỉ CME"
     },
 
@@ -166,7 +179,7 @@ const PORTAL_CONFIG = {
       platform: "Vercel / BI",
       featured: true,
       enabled: true,
-      sortOrder: 8,
+      sortOrder: 9,
       badge: "Dữ liệu AMR"
     },
     {
@@ -179,7 +192,7 @@ const PORTAL_CONFIG = {
       platform: "Google NotebookLM",
       featured: true,
       enabled: true,
-      sortOrder: 9,
+      sortOrder: 10,
       badge: "NotebookLM AI"
     }
   ]
