@@ -16,7 +16,7 @@ const PORTAL_CONFIG = {
     headDoctor: "BS.CKII. Đào Quang Trung",
     headTitle: "Trưởng khoa Vi sinh – Bệnh viện Đa khoa Đức Giang",
     address: "54 Trường Lâm, Phường Việt Hưng, Quận Long Biên, Hà Nội",
-    phone: "024 3827 1884",
+    phone: "0986.70.70.60",
     email: "visinh.bvdkg@gmail.com",
     portalVersion: "3.3.0",
     releaseYear: 2026
