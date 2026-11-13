@@ -1,0 +1,8 @@
+# Hệ điều hành & file tạm
+.DS_Store
+Thumbs.db
+~$*
+
+# File log & cache
+*.log
+.cache/

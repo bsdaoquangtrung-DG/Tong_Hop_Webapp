@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Cổng Thông Tin Chuyển Đổi Số – Khoa Vi Sinh | Bệnh Viện Đa Khoa Đức Giang</title>
+  
+  <meta name="description" content="Cổng thông tin chuyển đổi số Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang. Hệ thống thanh công cụ 9 webapp số quản lý điều hành, chất lượng ISO 15189, hóa chất vật tư, CME và chuyên môn vi sinh.">
+  <meta name="author" content="BS.CKII. Đào Quang Trung – BVĐK Đức Giang">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="assets/logo_ducgiang.png">
+</head>
+<body class="sky-blue-theme">
+
+  <!-- ==================== 1. HEADER NHỎ GỌN & NỔI BẬT ==================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-left-group">
+      <!-- Nút toggle sidebar trên Mobile / Tablet -->
+      <button type="button" class="btn-hamburger" id="sidebarToggle" aria-label="Mở thanh công cụ menu" onclick="toggleSidebar()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- Logo & Nhận diện thương hiệu chính thức BVĐK Đức Giang -->
+      <a href="#" class="brand-wrapper" onclick="navigateToHome(event)" title="Cổng thông tin chuyển đổi số Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang">
+        <div class="brand-hospital-logo-box">
+          <img src="assets/logo_ducgiang.png" alt="Logo Bệnh viện Đa khoa Đức Giang" class="brand-hospital-logo">
+        </div>
+        <div class="brand-titles">
+          <div class="brand-title-compact">KHOA VI SINH</div>
+          <div class="brand-hospital-compact">BỆNH VIỆN ĐA KHOA ĐỨC GIANG</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Tiêu đề cổng chuyển đổi số chính giữa (Ẩn trên màn hình nhỏ) -->
+    <div class="header-center-title">
+      <span class="portal-badge-tag">DIGITAL PORTAL</span>
+      <span class="portal-main-heading">CỔNG THÔNG TIN CHUYỂN ĐỔI SỐ</span>
+    </div>
+
+    <!-- Nhóm nút hành động bên phải -->
+    <div class="header-right-actions">
+      <!-- Trạng thái kết nối Supabase Cloud -->
+      <div id="supabaseConnectionBadge" class="supabase-status-pill" onclick="openAdminModal('supabase')" title="Trạng thái kết nối Supabase Cloud">
+        <span class="status-dot"></span>
+        <span id="supabaseStatusText" class="status-text-compact">Supabase</span>
+      </div>
+
+      <!-- Nút Quản trị -->
+      <button type="button" class="btn-admin-compact" id="btnOpenAdmin" title="Quản trị liên kết hệ thống">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="admin-label">Quản trị</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== BỐ CỤC CHÍNH (SIDEBAR TRÁI + NỘI DUNG CHÍNH) ==================== -->
+  <div class="app-layout-container">
+    
+    <!-- Lớp phủ mờ backdrop trên thiết bị di động -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ==================== 2. THANH CÔNG CỤ BÊN TRÁI (LEFT SIDEBAR) ==================== -->
+    <aside class="sidebar-left" id="sidebarLeft" aria-label="Thanh công cụ ứng dụng">
+      <div class="sidebar-inner">
+
+        <!-- Mục TRANG CHỦ với Icon -->
+        <div class="sidebar-nav-block">
+          <button type="button" class="sidebar-nav-item active" id="navItemHome" onclick="navigateToHome(event)">
+            <div class="sidebar-item-icon home-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div class="sidebar-item-details">
+              <span class="sidebar-item-name">Trang chủ</span>
+              <span class="sidebar-item-sub">Tổng quan hệ sinh thái</span>
+            </div>
+            <span class="sidebar-active-pill">Chính</span>
+          </button>
+        </div>
+
+        <!-- Đường phân cách tinh tế -->
+        <div class="sidebar-divider"></div>
+
+        <!-- Danh sách 9 ứng dụng liên kết nằm bên trái -->
+        <div class="sidebar-apps-list" id="sidebarAppsList">
+          <!-- Sẽ được nạp tự động qua JavaScript theo danh mục chuẩn -->
+        </div>
+
+        <!-- Khối người phụ trách chuyên môn ở đáy sidebar -->
+        <div class="sidebar-footer-card">
+          <div class="doctor-avatar-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="doctor-card-info">
+            <div class="doctor-name">BS.CKII. Đào Quang Trung</div>
+            <div class="doctor-pos">Trưởng khoa Vi sinh – BV Đức Giang</div>
+            <div class="doctor-phone">📞 024 3827 1884</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ==================== 3. KHU VỰC GIAO DIỆN CHÍNH (MAIN OVERVIEW) ==================== -->
+    <main class="main-content-area" id="mainContentArea">
+      
+      <!-- GIAO DIỆN CHÍNH: GIỚI THIỆU TỔNG THỂ TOÀN BỘ HỆ SINH THÁI WEBAPP VI SINH -->
+      <section class="ecosystem-intro-section" id="homeOverview">
+        <div class="intro-glass-card">
+
+          <!-- Header Giới thiệu Cổng thông tin kết hợp Logo Bệnh viện -->
+          <div class="intro-header-area">
+            <div class="intro-branding-banner">
+              <div class="intro-logo-seal">
+                <img src="assets/logo_ducgiang.png" alt="Logo Bệnh viện Đa khoa Đức Giang">
+              </div>
+              <div class="intro-titles-wrap">
+                <div class="intro-badge-row">
+                  <span class="lab-pill-badge">
+                    <span class="live-dot"></span>
+                    <span>HỆ THỐNG XÉT NGHIỆM VI SINH LÂM SÀNG</span>
+                  </span>
+                  <span class="lab-version-badge">BVĐK Đức Giang • Phiên bản 3.3.0</span>
+                </div>
+                <h1 class="intro-main-title">CỔNG THÔNG TIN CHUYỂN ĐỔI SỐ KHOA VI SINH</h1>
+                <h2 class="intro-sub-title">BỆNH VIỆN ĐA KHOA ĐỨC GIANG</h2>
+              </div>
+            </div>
+
+            <p class="intro-description-text">
+              Cổng truy cập trung tâm hợp nhất <strong>9 ứng dụng số chuyên ngành</strong> phục vụ toàn diện công tác quản trị, điều hành tác nghiệp, quản lý chất lượng theo tiêu chuẩn quốc tế <strong>ISO 15189</strong>, quản lý hóa chất sinh phẩm, giám sát đào tạo liên tục (CME) và dữ liệu kháng sinh đồ (AMR) phục vụ chẩn đoán, điều trị người bệnh.
+            </p>
+
+            <div class="intro-slogan-box">
+              <span class="quote-icon">“</span>
+              <span class="slogan-content">Kết nối hệ thống – Chuẩn hóa quy trình – Nâng cao chất lượng – Thúc đẩy chuyển đổi số y tế.</span>
+              <span class="quote-icon">”</span>
+            </div>
+          </div>
+
+          <!-- BỘ 4 HÌNH ẢNH & THẺ MINH HỌA SINH ĐỘNG CHUYÊN NGÀNH XÉT NGHIỆM VI SINH -->
+          <div class="microbiology-visual-grid">
+            
+            <!-- Thẻ 1: Kính hiển vi quang học & Soi tươi, Nhuộm Gram -->
+            <div class="micro-feature-card card-microscope">
+              <div class="card-visual-header">
+                <div class="visual-icon-box bg-micro-blue">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>
+                  </svg>
+                </div>
+                <div class="visual-tag tag-blue">Soi Vi Thể</div>
+              </div>
+              <h3 class="card-visual-title">Kính Hiển Vi & Nhuộm Gram</h3>
+              <p class="card-visual-desc">
+                Soi tươi tìm vi nấm, ký sinh trùng và kỹ thuật nhuộm Gram xác định nhanh vi khuẩn hình que, cầu khuẩn gram dương, gram âm định hướng điều trị tức thì.
+              </p>
+              <div class="card-visual-illustration">
+                <svg viewBox="0 0 220 54" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-lab-art">
+                  <circle cx="28" cy="27" r="14" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
+                  <circle cx="28" cy="27" r="5" fill="#0284C7"/>
+                  <circle cx="48" cy="18" r="8" fill="#FCE7F3" stroke="#DB2777" stroke-width="1.8"/>
+                  <rect x="70" y="20" width="22" height="12" rx="6" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.8"/>
+                  <circle cx="112" cy="27" r="10" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.8"/>
+                  <circle cx="112" cy="27" r="3" fill="#16A34A"/>
+                  <rect x="138" y="16" width="26" height="14" rx="7" fill="#FEF3C7" stroke="#D97706" stroke-width="1.8"/>
+                  <circle cx="185" cy="27" r="12" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.8"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Thẻ 2: Nuôi cấy, Phân lập & Đĩa thạch vi sinh -->
+            <div class="micro-feature-card card-culture">
+              <div class="card-visual-header">
+                <div class="visual-icon-box bg-micro-teal">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="6" stroke-dasharray="2 2"/>
+                    <circle cx="9" cy="10" r="1.5" fill="currentColor"/>
+                    <circle cx="15" cy="11" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="15" r="1.5" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="visual-tag tag-teal">Nuôi Cấy Đĩa Thạch</div>
+              </div>
+              <h3 class="card-visual-title">Nuôi Cấy & Định Danh</h3>
+              <p class="card-visual-desc">
+                Cấy mẫu bệnh phẩm trên môi trường thạch máu, MacConkey, Sabouraud... phân lập thuần chủng và định danh sinh vật gây nhiễm trùng huyết, hô hấp, tiết niệu.
+              </p>
+              <div class="card-visual-illustration">
+                <svg viewBox="0 0 220 54" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-lab-art">
+                  <circle cx="45" cy="27" r="22" fill="#CCFBF1" stroke="#0D9488" stroke-width="2"/>
+                  <circle cx="45" cy="27" r="15" fill="#E6FFFA" stroke="#14B8A6" stroke-dasharray="3 3"/>
+                  <circle cx="38" cy="22" r="3" fill="#0F766E"/>
+                  <circle cx="50" cy="25" r="3" fill="#0F766E"/>
+                  <circle cx="42" cy="33" r="2.5" fill="#0F766E"/>
+                  <line x1="80" y1="27" x2="195" y2="27" stroke="#99F6E4" stroke-width="2" stroke-dasharray="4 4"/>
+                  <path d="M125 15 L145 27 L125 39" fill="none" stroke="#0D9488" stroke-width="2"/>
+                  <circle cx="185" cy="27" r="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Thẻ 3: Kháng sinh đồ & Giám sát kháng thuốc AMR -->
+            <div class="micro-feature-card card-amr">
+              <div class="card-visual-header">
+                <div class="visual-icon-box bg-micro-rose">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+                    <path d="m8.5 8.5 7 7"/>
+                  </svg>
+                </div>
+                <div class="visual-tag tag-rose">Kháng Sinh Đồ & AMR</div>
+              </div>
+              <h3 class="card-visual-title">Kháng Sinh Đồ & AMR</h3>
+              <p class="card-visual-desc">
+                Thực hiện kháng sinh đồ khuếch tán đĩa giấy, xác định nồng độ ức chế tối thiểu (MIC) theo CLSI/EUCAST, tổng hợp dữ liệu vi khuẩn đa kháng AMR cảnh báo sớm.
+              </p>
+              <div class="card-visual-illustration">
+                <svg viewBox="0 0 220 54" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-lab-art">
+                  <circle cx="35" cy="27" r="20" fill="#FFE4E6" stroke="#E11D48" stroke-width="2"/>
+                  <circle cx="35" cy="27" r="8" fill="#FFFFFF" stroke="#BE123C" stroke-width="2"/>
+                  <text x="31" y="30" font-size="8" font-weight="bold" fill="#BE123C">AK</text>
+                  <circle cx="95" cy="27" r="16" fill="#FFE4E6" stroke="#E11D48" stroke-width="2"/>
+                  <circle cx="95" cy="27" r="8" fill="#FFFFFF" stroke="#BE123C" stroke-width="2"/>
+                  <text x="90" y="30" font-size="8" font-weight="bold" fill="#BE123C">MEM</text>
+                  <circle cx="155" cy="27" r="22" fill="#FFE4E6" stroke="#E11D48" stroke-width="2"/>
+                  <circle cx="155" cy="27" r="8" fill="#FFFFFF" stroke="#BE123C" stroke-width="2"/>
+                  <text x="151" y="30" font-size="8" font-weight="bold" fill="#BE123C">CIP</text>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Thẻ 4: Sinh học phân tử PCR & Quản lý chất lượng ISO 15189 -->
+            <div class="micro-feature-card card-iso">
+              <div class="card-visual-header">
+                <div class="visual-icon-box bg-micro-purple">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                  </svg>
+                </div>
+                <div class="visual-tag tag-purple">ISO 15189 & PCR</div>
+              </div>
+              <h3 class="card-visual-title">Chuẩn Hóa ISO 15189 & DNA</h3>
+              <p class="card-visual-desc">
+                Hệ thống tài liệu SOP, hồ sơ năng lực nhân sự kiểm soát chặt chẽ theo chuẩn ISO 15189, kết hợp kỹ thuật PCR sinh học phân tử chẩn đoán gen nhanh, độ nhạy cao.
+              </p>
+              <div class="card-visual-illustration">
+                <svg viewBox="0 0 220 54" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-lab-art">
+                  <path d="M15 15 Q35 40 55 15 T95 15 T135 15 T175 15 T205 15" fill="none" stroke="#9333EA" stroke-width="2.2"/>
+                  <path d="M15 40 Q35 15 55 40 T95 40 T135 40 T175 40 T205 40" fill="none" stroke="#C084FC" stroke-width="2.2"/>
+                  <line x1="35" y1="25" x2="35" y2="30" stroke="#7E22CE" stroke-width="2"/>
+                  <line x1="75" y1="25" x2="75" y2="30" stroke="#7E22CE" stroke-width="2"/>
+                  <line x1="115" y1="25" x2="115" y2="30" stroke="#7E22CE" stroke-width="2"/>
+                  <line x1="155" y1="25" x2="155" y2="30" stroke="#7E22CE" stroke-width="2"/>
+                  <line x1="195" y1="25" x2="195" y2="30" stroke="#7E22CE" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- BẢNG CHỈ SỐ KPI TỔNG QUAN HỆ THỐNG -->
+          <div class="metrics-row-compact">
+            <div class="metric-pill-item">
+              <span class="metric-pill-num" id="metricTotalApps">9</span>
+              <span class="metric-pill-text">Ứng dụng số thực tế</span>
+            </div>
+            <div class="metric-pill-item">
+              <span class="metric-pill-num">5</span>
+              <span class="metric-pill-text">Nhóm nghiệp vụ vi sinh</span>
+            </div>
+            <div class="metric-pill-item">
+              <span class="metric-pill-num">100%</span>
+              <span class="metric-pill-text">Sẵn sàng vận hành</span>
+            </div>
+            <div class="metric-pill-item">
+              <span class="metric-pill-num">24/7</span>
+              <span class="metric-pill-text">Đa thiết bị PC / Tablet / Mobile</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== 4. THANH TÌM KIẾM & BỘ LỌC TABS ==================== -->
+      <section class="search-filter-panel" id="appsCatalogSection">
+        <div class="search-filter-inner">
+          
+          <!-- Thanh tìm kiếm thông minh -->
+          <div class="search-input-wrapper">
+            <div class="search-icon-box" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+              </svg>
+            </div>
+            <input type="text" id="searchInput" class="search-input-field" placeholder="Tìm nhanh ứng dụng: giao ban, quy trình, nhân sự, hóa chất, kho, CME, kháng thuốc..." autocomplete="off">
+            <button type="button" id="btnClearSearch" class="btn-clear-input" title="Xóa tìm kiếm">✕</button>
+          </div>
+
+          <!-- Dải Tab 5 Nhóm nghiệp vụ -->
+          <div class="category-tabs-scroll" id="categoryTabsContainer"></div>
+
+        </div>
+      </section>
+
+      <!-- ==================== 5. LƯỚI THẺ 9 ỨNG DỤNG SỐ CHI TIẾT ==================== -->
+      <section class="apps-display-section">
+        <div class="apps-grid-container" id="mainAppsGrid">
+          <!-- 9 thẻ webapp thực tế được render tại đây qua JavaScript -->
+        </div>
+
+        <!-- Trạng thái khi không tìm thấy kết quả -->
+        <div id="emptySearchState" class="empty-result-box" style="display:none;">
+          <div class="empty-icon">🔍</div>
+          <h3 class="empty-title">Không tìm thấy ứng dụng phù hợp</h3>
+          <p class="empty-desc">Vui lòng kiểm tra lại từ khóa hoặc bấm nút bên dưới để xem toàn bộ danh mục.</p>
+          <button type="button" class="btn-reset-filter" onclick="resetSearchAndFilters()">Hiển thị tất cả 9 ứng dụng</button>
+        </div>
+      </section>
+
+      <!-- ==================== 6. FOOTER THÔNG TIN NGƯỜI PHỤ TRÁCH ==================== -->
+      <footer class="site-footer">
+        <div class="footer-container">
+          <div class="footer-grid">
+            
+            <div class="footer-brand-column">
+              <div class="footer-brand-header">
+                <img src="assets/logo_ducgiang.png" alt="Logo Bệnh viện Đa khoa Đức Giang" class="footer-hospital-logo">
+                <div class="footer-brand-text">
+                  <div class="footer-brand-title">KHOA VI SINH – BỆNH VIỆN ĐA KHOA ĐỨC GIANG</div>
+                  <div class="footer-sub-title">CỔNG TRUY CẬP TRUNG TÂM HỆ SINH THÁI CHUYỂN ĐỔI SỐ</div>
+                </div>
+              </div>
+              <p class="footer-slogan">
+                "Kết nối hệ thống – Chuẩn hóa quy trình – Nâng cao chất lượng – Thúc đẩy chuyển đổi số y tế."
+              </p>
+              <div class="footer-leader-info">
+                <span>Người phụ trách: <strong>BS.CKII. Đào Quang Trung</strong> – Trưởng khoa Vi sinh</span>
+              </div>
+            </div>
+
+            <div class="footer-contact-column">
+              <div class="footer-section-title">THÔNG TIN LIÊN HỆ & VẬN HÀNH</div>
+              <div class="footer-contact-line">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>54 Trường Lâm, Phường Việt Hưng, Quận Long Biên, Hà Nội.</span>
+              </div>
+              <div class="footer-contact-line">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Điện thoại phòng xét nghiệm: <strong>024 3827 1884</strong></span>
+              </div>
+              <div class="footer-contact-line">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <span>Email: visinh.bvdkg@gmail.com</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="footer-bottom-bar">
+            <div>© 2026 Cổng thông tin chuyển đổi số Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang.</div>
+            <div>Toàn bộ 9 ứng dụng đều đã được tích hợp & phân nhóm nghiệp vụ thực tế.</div>
+          </div>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ==================== MODAL: XEM TRỰC TIẾP WEBAPP (IN-PORTAL VIEWER) ==================== -->
+  <div class="viewer-modal-backdrop" id="appViewerModal" role="dialog" aria-modal="true">
+    <div class="viewer-modal-container">
+      <div class="viewer-header">
+        <div class="viewer-title-group">
+          <div id="viewerIconWrap" class="viewer-app-icon-box"></div>
+          <div>
+            <div id="viewerAppName" class="viewer-app-name">Tên Ứng Dụng</div>
+            <span id="viewerAppPlatform" class="viewer-app-platform">Platform</span>
+          </div>
+        </div>
+        
+        <div class="viewer-toolbar-actions">
+          <button type="button" class="btn-viewer-tool" id="btnReloadViewer" onclick="reloadViewerIframe()" title="Tải lại">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            <span class="btn-text">Tải lại</span>
+          </button>
+          
+          <a id="btnViewerExternal" href="#" target="_blank" rel="noopener noreferrer" class="btn-viewer-tool btn-viewer-accent" title="Mở trong tab mới">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+            <span>Mở Tab ↗</span>
+          </a>
+
+          <button type="button" class="btn-viewer-close" onclick="closeAppViewer()" title="Đóng (ESC)">✕</button>
+        </div>
+      </div>
+
+      <div class="viewer-notice-banner">
+        <span>💡 <strong>Lưu ý:</strong> Nếu ứng dụng Google Apps Script yêu cầu đăng nhập tài khoản BVĐK Đức Giang hoặc bị chặn nhúng, hãy nhấn <strong>"Mở Tab ↗"</strong> để thao tác toàn màn hình.</span>
+      </div>
+
+      <div class="viewer-iframe-wrapper">
+        <div id="viewerLoadingState" class="viewer-loading-state">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Đang kết nối webapp an toàn...</div>
+        </div>
+        <iframe id="viewerIframe" class="viewer-iframe" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: QUÉT MÃ QR ==================== -->
+  <div class="modal-backdrop" id="qrModal" role="dialog" aria-modal="true">
+    <div class="modal-container qr-modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="qrModalTitle">Quét Mã QR</div>
+        <button type="button" class="btn-modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="qr-hint-text">
+          Mở camera trên điện thoại thông minh hoặc máy tính bảng phòng lab để quét mã truy cập nhanh:
+        </p>
+        <div id="qrImageWrap" class="qr-img-wrapper"></div>
+        <div id="qrUrlText" class="qr-url-display"></div>
+      </div>
+      <div class="modal-footer justify-center">
+        <button type="button" class="btn-close-flat" onclick="closeAllModals()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: QUẢN TRỊ ĐƯỜNG DẪN 9 WEBAPP ==================== -->
+  <div class="modal-backdrop" id="adminModal" role="dialog" aria-modal="true">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">⚙️ Quản Trị Đường Dẫn 9 Webapp</div>
+        <button type="button" class="btn-modal-close" onclick="closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="adminAppList"></div>
+      </div>
+      <div class="modal-footer justify-between">
+        <button type="button" class="btn-admin-compact" onclick="resetToDefaultConfig()">↺ Khôi phục 9 link chuẩn</button>
+        <div class="modal-btn-group">
+          <button type="button" class="btn-admin-compact" onclick="closeAllModals()">Hủy</button>
+          <button type="button" class="btn-save-primary" onclick="saveAdminChanges()">💾 Lưu cấu hình</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="data/supabase-config.js"></script>
+  <script src="data/apps-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
