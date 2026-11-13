@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Cổng Thông Tin Chuyển Đổi Số – Khoa Vi Sinh | Bệnh Viện Đa Khoa Đức Giang</title>
   
   <meta name="description" content="Cổng thông tin chuyển đổi số Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang. Hệ thống thanh công cụ 9 webapp số quản lý điều hành, chất lượng ISO 15189, hóa chất vật tư, CME và chuyên môn vi sinh.">
@@ -89,6 +89,20 @@
     <aside class="sidebar-left" id="sidebarLeft" aria-label="Thanh công cụ ứng dụng">
       <div class="sidebar-inner">
 
+        <!-- Thanh tiêu đề đóng drawer trên Mobile / Tablet -->
+        <div class="sidebar-drawer-header">
+          <div class="sidebar-drawer-brand">
+            <img src="assets/logo_ducgiang.png" alt="Logo BV Đức Giang" class="drawer-logo">
+            <span>DANH MỤC 10 ỨNG DỤNG</span>
+          </div>
+          <button type="button" class="btn-drawer-close" onclick="toggleSidebar(false)" aria-label="Đóng thanh menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
         <!-- Mục TRANG CHỦ với Icon -->
         <div class="sidebar-nav-block">
           <button type="button" class="sidebar-nav-item active" id="navItemHome" onclick="navigateToHome(event)">
@@ -147,6 +161,16 @@
               <div class="intro-titles-wrap">
                 <h1 class="intro-main-title">CỔNG THÔNG TIN CHUYỂN ĐỔI SỐ KHOA VI SINH</h1>
                 <h2 class="intro-sub-title">BỆNH VIỆN ĐA KHOA ĐỨC GIANG</h2>
+                <!-- Khẩu hiệu hiển thị riêng trên Mobile khi header thu gọn -->
+                <div class="mobile-slogan-badge" aria-label="Khẩu hiệu BVĐK Đức Giang">
+                  <span class="slogan-badge-icon" aria-hidden="true">⭐</span>
+                  <span class="slogan-word slogan-red">Chuyên Sâu</span>
+                  <span class="slogan-dash">-</span>
+                  <span class="slogan-word slogan-green">Tận Tâm</span>
+                  <span class="slogan-dash">-</span>
+                  <span class="slogan-word slogan-blend">Vươn Tầm</span>
+                  <span class="slogan-badge-icon" aria-hidden="true">⭐</span>
+                </div>
               </div>
             </div>
 
@@ -432,6 +456,13 @@
             <span>Mở Tab ↗</span>
           </a>
 
+          <button type="button" class="btn-viewer-tool" id="btnToggleFullscreen" onclick="toggleViewerFullscreen()" title="Toàn màn hình / Thu nhỏ">
+            <svg id="fullscreenIconSvg" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+            <span class="btn-text" id="fullscreenBtnText">Phóng to</span>
+          </button>
+
           <button type="button" class="btn-viewer-close" onclick="closeAppViewer()" title="Đóng (ESC)">✕</button>
         </div>
       </div>
@@ -470,18 +501,18 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: QUẢN TRỊ ĐƯỜNG DẪN 9 WEBAPP ==================== -->
+  <!-- ==================== MODAL: QUẢN TRỊ ĐƯỜNG DẪN 10 WEBAPP ==================== -->
   <div class="modal-backdrop" id="adminModal" role="dialog" aria-modal="true">
     <div class="modal-container modal-lg">
       <div class="modal-header">
-        <div class="modal-title">⚙️ Quản Trị Đường Dẫn 9 Webapp</div>
+        <div class="modal-title">⚙️ Quản Trị Đường Dẫn 10 Webapp</div>
         <button type="button" class="btn-modal-close" onclick="closeAllModals()">✕</button>
       </div>
       <div class="modal-body">
         <div id="adminAppList"></div>
       </div>
       <div class="modal-footer justify-between">
-        <button type="button" class="btn-admin-compact" onclick="resetToDefaultConfig()">↺ Khôi phục 9 link chuẩn</button>
+        <button type="button" class="btn-admin-compact" onclick="resetToDefaultConfig()">↺ Khôi phục 10 link chuẩn</button>
         <div class="modal-btn-group">
           <button type="button" class="btn-admin-compact" onclick="closeAllModals()">Hủy</button>
           <button type="button" class="btn-save-primary" onclick="saveAdminChanges()">💾 Lưu cấu hình</button>
@@ -489,6 +520,50 @@
       </div>
     </div>
   </div>
+
+  <!-- ==================== THANH ĐIỀU HƯỚNG DƯỚI ĐÁY TRÊN ĐIỆN THOẠI (MOBILE BOTTOM NAV) ==================== -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Thanh điều hướng di động">
+    <button type="button" class="bottom-nav-item active" id="bnavHome" onclick="navigateToHome(event)">
+      <div class="bnav-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <span class="bnav-label">Trang chủ</span>
+    </button>
+
+    <button type="button" class="bottom-nav-item" id="bnavApps" onclick="toggleSidebar(true)">
+      <div class="bnav-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="7" x="3" y="3" rx="1"/>
+          <rect width="7" height="7" x="14" y="3" rx="1"/>
+          <rect width="7" height="7" x="14" y="14" rx="1"/>
+          <rect width="7" height="7" x="3" y="14" rx="1"/>
+        </svg>
+      </div>
+      <span class="bnav-label">10 Ứng dụng</span>
+    </button>
+
+    <button type="button" class="bottom-nav-item" id="bnavSearch" onclick="focusSearchInput()">
+      <div class="bnav-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+      </div>
+      <span class="bnav-label">Tìm kiếm</span>
+    </button>
+
+    <button type="button" class="bottom-nav-item" id="bnavTop" onclick="scrollToTop()">
+      <div class="bnav-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </div>
+      <span class="bnav-label">Lên đầu</span>
+    </button>
+  </nav>
 
   <!-- JavaScript Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

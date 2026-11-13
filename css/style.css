@@ -63,15 +63,20 @@ html {
   color: var(--text-main);
   background-color: var(--bg-page);
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body.sky-blue-theme {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #E0F2FE 0%, #EBF5FB 320px, #E9F4FB 100%);
   color: var(--text-main);
   line-height: 1.5;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* ==================== 1. HEADER NHỎ GỌN & NỔI BẬT ==================== */
@@ -1732,42 +1737,182 @@ body.sky-blue-theme {
   pointer-events: auto;
 }
 
-/* ==================== RESPONSIVE TỐI ƯU PC, TABLET & MOBILE ==================== */
-@media (max-width: 1200px) {
+/* ==================== CÁC PHẦN TỬ ĐA THIẾT BỊ MỚI (DRAWER, BADGE, BOTTOM NAV, FULLSCREEN) ==================== */
+.sidebar-drawer-header {
+  display: none;
+}
+
+.mobile-slogan-badge {
+  display: none;
+}
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* Phóng to toàn màn hình trên máy tính/laptop khi người dùng bấm nút Fullscreen */
+.viewer-modal-container.is-fullscreen {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* ==================== 1. MÀN HÌNH LỚN / DESKTOP (> 1366px) ==================== */
+@media (min-width: 1367px) {
   .apps-grid-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
   .microbiology-visual-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
+/* ==================== 2. MÁY TÍNH XÁCH TAY, MACBOOK (1025px - 1366px) ==================== */
+@media (min-width: 1025px) and (max-width: 1366px) {
+  :root {
+    --sidebar-width: 270px;
+  }
+
+  .main-content-area {
+    padding: 1.35rem 1.5rem 3rem;
+  }
+
+  /* Đảm bảo 10 webapp hiển thị 2 cột thoáng, không bị co ép trên màn hình MacBook 13"-14" */
+  .apps-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.15rem;
+  }
+
+  .microbiology-visual-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .metrics-row-compact {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.85rem;
+  }
+
+  .viewer-modal-container {
+    width: 96vw;
+    height: 92vh;
+    max-width: 1320px;
+  }
+}
+
+/* ==================== 3. MÁY TÍNH BẢNG / TABLETS (769px - 1024px) ==================== */
 @media (max-width: 1024px) {
   .btn-hamburger {
     display: inline-flex;
   }
   
   .header-slogan-pill {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.8rem;
+    font-size: 0.78rem;
+    padding: 0.22rem 0.65rem;
     gap: 0.35rem;
   }
 
-  /* Biến Sidebar thành off-canvas drawer trên Tablet & Mobile */
+  /* Chuyển Sidebar thành Off-canvas Drawer trượt êm ái trên iPad / Tablet */
   .sidebar-left {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
+    width: 310px;
+    max-width: 85vw;
     height: 100vh;
+    height: 100dvh;
     z-index: 150;
     transform: translateX(-100%);
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
   }
 
   .sidebar-left.open {
     transform: translateX(0);
+  }
+
+  /* Header riêng cho Drawer trên Tablet & Mobile có nút đóng chữ ✕ */
+  .sidebar-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    background: linear-gradient(135deg, #0A5C36 0%, #047857 100%);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+  }
+
+  .drawer-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .drawer-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .drawer-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .drawer-hospital {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+  }
+
+  .drawer-dept {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #FEF08A;
+    letter-spacing: 0.8px;
+  }
+
+  .btn-drawer-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-drawer-close:hover,
+  .btn-drawer-close:active {
+    background: rgba(239, 68, 68, 0.85);
+    border-color: #ef4444;
+    transform: scale(1.05);
+  }
+
+  .sidebar-inner {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.85rem 0.85rem 2rem;
   }
 
   .main-content-area {
@@ -1779,19 +1924,41 @@ body.sky-blue-theme {
   }
 
   .intro-main-title {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
+  }
+
+  .apps-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .microbiology-visual-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 }
 
+/* ==================== 4. ĐIỆN THOẠI THÔNG MINH / SMARTPHONES (<= 768px) ==================== */
 @media (max-width: 768px) {
   :root {
-    --header-height: 50px;
+    --header-height: 52px;
+  }
+
+  /* Chừa khoảng trống phía dưới cho Bottom Navigation Bar + Safe Area tai thỏ */
+  body {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Ẩn Bottom Nav khi đang mở cửa sổ In-Portal Viewer để xem ứng dụng toàn màn hình */
+  body.viewer-open .mobile-bottom-nav {
+    display: none !important;
   }
 
   .site-header {
-    padding: 0 0.85rem;
+    padding: 0 0.75rem;
   }
 
+  /* Ẩn slogan trên top header ở điện thoại để tránh chật chội; slogan sẽ hiển thị dạng badge nổi bật dưới banner */
   .header-slogan-wrapper {
     display: none;
   }
@@ -1813,12 +1980,42 @@ body.sky-blue-theme {
   }
 
   .main-content-area {
-    padding: 1rem 0.75rem 2rem;
+    padding: 0.85rem 0.75rem 2.5rem;
+  }
+
+  /* Slogan Badge dành riêng cho điện thoại thông minh */
+  .mobile-slogan-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.45rem 1rem;
+    margin-bottom: 0.95rem;
+    background: linear-gradient(135deg, rgba(10, 92, 54, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%);
+    border: 1.5px solid rgba(10, 92, 54, 0.28);
+    border-radius: 9999px;
+    box-shadow: 0 2px 8px rgba(10, 92, 54, 0.08);
+    text-align: center;
+  }
+
+  .mobile-slogan-badge .mslogan-star {
+    font-size: 0.85rem;
+    filter: drop-shadow(0 1px 2px rgba(234, 179, 8, 0.5));
+  }
+
+  .mobile-slogan-badge .mslogan-text {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    background: linear-gradient(90deg, #DC2626 0%, #15803D 50%, #0284C7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .intro-glass-card {
-    padding: 1.25rem 1rem;
-    border-radius: var(--radius-lg);
+    padding: 1.15rem 0.85rem;
+    border-radius: var(--radius-md);
   }
 
   .intro-branding-banner {
@@ -1828,37 +2025,60 @@ body.sky-blue-theme {
   }
 
   .intro-logo-seal {
-    width: 58px;
-    height: 58px;
+    width: 52px;
+    height: 52px;
   }
 
   .intro-main-title {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+    line-height: 1.35;
   }
 
   .intro-sub-title {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
 
   .intro-description-text {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
+    line-height: 1.55;
   }
 
   .intro-slogan-box {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+    padding: 0.45rem 0.65rem;
   }
 
   .microbiology-visual-grid {
     grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
 
   .metrics-row-compact {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
   }
 
   .apps-grid-container {
     grid-template-columns: 1fr;
+    gap: 0.95rem;
+  }
+
+  .app-card-full {
+    border-radius: var(--radius-md);
+  }
+
+  .app-card-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .btn-action-primary,
+  .btn-action-secondary {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+    padding: 0.55rem 0.75rem;
   }
 
   .footer-grid {
@@ -1872,9 +2092,143 @@ body.sky-blue-theme {
     gap: 0.5rem;
   }
 
+  /* Cửa sổ In-Portal Viewer chiếm 100% màn hình điện thoại (full-bleed) */
   .viewer-modal-container {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
+    max-width: 100vw;
+    max-height: 100dvh;
     border-radius: 0;
   }
+
+  .viewer-header {
+    padding: 0.55rem 0.75rem;
+  }
+
+  .viewer-app-name {
+    max-width: 150px;
+    font-size: 0.9rem;
+  }
+
+  .viewer-toolbar-actions {
+    gap: 0.35rem;
+  }
+
+  .btn-viewer-tool .btn-text {
+    display: none;
+  }
+
+  .btn-viewer-tool {
+    padding: 0.4rem 0.55rem;
+    min-width: 36px;
+    min-height: 36px;
+    justify-content: center;
+  }
+
+  /* THANH ĐIỀU HƯỚNG DƯỚI ĐÁY (MOBILE BOTTOM NAVIGATION) */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(14, 165, 233, 0.22);
+    box-shadow: 0 -4px 20px rgba(2, 132, 199, 0.1);
+    z-index: 120;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0.35rem 0.2rem;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav-item .bnav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .bottom-nav-item .bnav-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .bottom-nav-item .bnav-label {
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+  }
+
+  .bottom-nav-item.active {
+    color: #0284C7;
+  }
+
+  .bottom-nav-item.active .bnav-icon {
+    transform: translateY(-2px);
+    color: #0284C7;
+  }
+
+  .bottom-nav-item:active {
+    transform: scale(0.92);
+  }
 }
+
+/* ==================== 5. MÀN HÌNH ĐIỆN THOẠI CỠ NHỎ (<= 420px) ==================== */
+@media (max-width: 420px) {
+  .brand-title-compact {
+    font-size: 0.8rem;
+  }
+
+  .brand-hospital-compact {
+    font-size: 0.58rem;
+  }
+
+  .intro-main-title {
+    font-size: 1.15rem;
+  }
+
+  .mobile-slogan-badge .mslogan-text {
+    font-size: 0.74rem;
+  }
+
+  .metrics-row-compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .metric-card {
+    padding: 0.65rem 0.5rem;
+  }
+
+  .metric-card-number {
+    font-size: 1.15rem;
+  }
+
+  .metric-card-label {
+    font-size: 0.66rem;
+  }
+}
+

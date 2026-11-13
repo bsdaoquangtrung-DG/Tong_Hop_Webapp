@@ -111,7 +111,7 @@ function setupEventListeners() {
     });
   });
 
-  // Phím ESC đóng khung xem
+  // Hỗ trợ phím ESC đóng mọi modal & menu (tối ưu bàn phím Laptop / MacBook)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeAppViewer();
@@ -227,6 +227,9 @@ window.navigateToHome = function(event) {
     btn.classList.remove('active');
   });
 
+  // Cập nhật trạng thái bottom nav di động
+  updateBottomNavActive('bnavHome');
+
   // Đóng drawer trên thiết bị nhỏ
   toggleSidebar(false);
 
@@ -241,6 +244,32 @@ window.navigateToHome = function(event) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
+
+/**
+ * Điều hướng nhanh & Tiện ích di động (Mobile Bottom Nav)
+ */
+window.focusSearchInput = function() {
+  const searchSection = document.getElementById('appsCatalogSection');
+  const searchInput = document.getElementById('searchInput');
+  if (searchSection) {
+    searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  if (searchInput) {
+    setTimeout(() => searchInput.focus(), 350);
+  }
+  updateBottomNavActive('bnavSearch');
+};
+
+window.scrollToTop = function() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateBottomNavActive('bnavHome');
+};
+
+function updateBottomNavActive(activeId) {
+  document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
+  const activeEl = document.getElementById(activeId);
+  if (activeEl) activeEl.classList.add('active');
+}
 
 /**
  * Bật/tắt thanh sidebar bên trái trên Tablet & Smartphone
@@ -452,14 +481,30 @@ window.openAppViewer = function(appId) {
 
   iframe.src = app.url;
   modal.classList.add('open');
+  document.body.classList.add('viewer-open');
 };
 
 window.closeAppViewer = function() {
   const modal = document.getElementById('appViewerModal');
+  const container = document.querySelector('.viewer-modal-container');
   const iframe = document.getElementById('viewerIframe');
+  const btnText = document.getElementById('fullscreenBtnText');
   if (modal) modal.classList.remove('open');
+  if (container) container.classList.remove('is-fullscreen');
+  if (btnText) btnText.textContent = 'Phóng to';
   if (iframe) iframe.src = 'about:blank';
+  document.body.classList.remove('viewer-open');
   AppState.currentViewingApp = null;
+};
+
+window.toggleViewerFullscreen = function() {
+  const container = document.querySelector('.viewer-modal-container');
+  const btnText = document.getElementById('fullscreenBtnText');
+  if (!container) return;
+  const isFull = container.classList.toggle('is-fullscreen');
+  if (btnText) {
+    btnText.textContent = isFull ? 'Thu nhỏ' : 'Phóng to';
+  }
 };
 
 window.reloadViewerIframe = function() {
