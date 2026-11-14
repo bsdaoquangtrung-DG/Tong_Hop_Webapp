@@ -12,6 +12,7 @@ const AppState = {
   activeCategory: 'all',
   searchQuery: '',
   activeSidebarId: 'home',
+  selectedAppCardId: null,
   storageKey: 'bvdkg_microbiology_clean_v33',
   supabaseClient: null,
   supabaseStatus: 'connecting',
@@ -170,6 +171,7 @@ function renderSidebarApps() {
  */
 window.onSidebarAppClick = function(appId) {
   AppState.activeSidebarId = appId;
+  AppState.selectedAppCardId = appId;
   
   // Bỏ active của nút Trang chủ
   const navItemHome = document.getElementById('navItemHome');
@@ -197,17 +199,19 @@ window.onSidebarAppClick = function(appId) {
     renderAppsGrid();
   }
 
-  // Cuộn mượt đến thẻ ứng dụng trên giao diện chính và tạo hiệu ứng phát sáng
-  setTimeout(() => {
-    const targetCard = document.getElementById(`card-${appId}`);
-    if (targetCard) {
-      targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      targetCard.classList.remove('highlight-card');
-      void targetCard.offsetWidth; // Trigger reflow
-      targetCard.classList.add('highlight-card');
-      setTimeout(() => targetCard.classList.remove('highlight-card'), 2200);
-    }
-  }, 100);
+  // Cập nhật trạng thái thẻ được chọn (nền xanh nổi bật) trên giao diện chính
+  document.querySelectorAll('.app-card').forEach(card => {
+    card.classList.remove('is-selected-card');
+  });
+
+  const targetCard = document.getElementById(`card-${appId}`);
+  if (targetCard) {
+    targetCard.classList.add('is-selected-card');
+    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    targetCard.classList.remove('highlight-card');
+    void targetCard.offsetWidth; // Trigger reflow
+    targetCard.classList.add('highlight-card');
+  }
 };
 
 /**
@@ -217,6 +221,7 @@ window.navigateToHome = function(event) {
   if (event) event.preventDefault();
   
   AppState.activeSidebarId = 'home';
+  AppState.selectedAppCardId = null;
 
   // Kích hoạt nút Trang chủ trên sidebar
   const navItemHome = document.getElementById('navItemHome');
@@ -225,6 +230,11 @@ window.navigateToHome = function(event) {
   // Xóa active của các app trong sidebar
   document.querySelectorAll('.sidebar-app-btn').forEach(btn => {
     btn.classList.remove('active');
+  });
+
+  // Bỏ chọn tất cả các thẻ webapp trên giao diện chính
+  document.querySelectorAll('.app-card').forEach(card => {
+    card.classList.remove('is-selected-card');
   });
 
   // Cập nhật trạng thái bottom nav di động
@@ -390,6 +400,7 @@ function renderAppsGrid() {
  */
 function createAppCardHtml(app) {
   const iconSvg = SVG_ICONS[app.icon] || SVG_ICONS['Microscope'];
+  const isSelected = AppState.selectedAppCardId === app.id;
   
   // Xác định class nền tảng
   let platformClass = 'gas';
@@ -397,7 +408,12 @@ function createAppCardHtml(app) {
   else if (app.platform.includes('Notebook')) platformClass = 'notebook';
 
   return `
-    <article class="app-card" id="card-${app.id}">
+    <article class="app-card ${isSelected ? 'is-selected-card' : ''}" id="card-${app.id}" onclick="onCardClick(event, '${app.id}')">
+      <div class="selected-app-indicator">
+        <span class="indicator-pulse-dot"></span>
+        <span>ĐANG CHỌN XEM • HƯỚNG DẪN TRUY CẬP WEBAPP</span>
+      </div>
+
       <div class="app-card-top">
         <div class="app-icon-wrap" aria-hidden="true">
           ${iconSvg}
@@ -416,25 +432,33 @@ function createAppCardHtml(app) {
 
       <div class="app-card-footer">
         <!-- Nút Xem trực tiếp -->
-        <button type="button" class="btn-card-action btn-card-view" onclick="openAppViewer('${app.id}')" title="Xem trực tiếp trên trang">
+        <button type="button" class="btn-card-action btn-card-view" onclick="event.stopPropagation(); openAppViewer('${app.id}')" title="Xem trực tiếp trên trang">
           ${SVG_ICONS.Eye}
           <span>Xem trực tiếp</span>
         </button>
 
         <!-- Nút Mở Tab Mới -->
-        <a href="${escapeHtml(app.url)}" target="_blank" rel="noopener noreferrer" class="btn-card-action btn-card-open" title="Mở trong tab riêng biệt">
+        <a href="${escapeHtml(app.url)}" target="_blank" rel="noopener noreferrer" class="btn-card-action btn-card-open" onclick="event.stopPropagation();" title="Mở trong tab riêng biệt">
           ${SVG_ICONS.ExternalLink}
           <span>Mở Tab</span>
         </a>
 
         <!-- Nút QR -->
-        <button type="button" class="btn-card-qr" onclick="showQrModal('${escapeHtml(app.url)}', '${escapeHtml(app.name)}')" title="Quét mã QR trên điện thoại/tablet">
+        <button type="button" class="btn-card-qr" onclick="event.stopPropagation(); showQrModal('${escapeHtml(app.url)}', '${escapeHtml(app.name)}')" title="Quét mã QR trên điện thoại/tablet">
           ${SVG_ICONS.QrCode}
         </button>
       </div>
     </article>
   `;
 }
+
+/**
+ * Click vào bất kỳ vị trí trên thẻ ứng dụng để chọn và làm nổi bật
+ */
+window.onCardClick = function(event, appId) {
+  if (event.target.closest('.btn-card-action') || event.target.closest('.btn-card-qr')) return;
+  onSidebarAppClick(appId);
+};
 
 /**
  * Bộ xem trực tiếp ứng dụng (In-Portal Viewer)
@@ -445,6 +469,12 @@ window.openAppViewer = function(appId) {
 
   AppState.currentViewingApp = app;
   AppState.activeSidebarId = appId;
+  AppState.selectedAppCardId = appId;
+
+  // Cập nhật trạng thái thẻ được chọn trên giao diện chính
+  document.querySelectorAll('.app-card').forEach(card => card.classList.remove('is-selected-card'));
+  const currentCard = document.getElementById(`card-${appId}`);
+  if (currentCard) currentCard.classList.add('is-selected-card');
 
   // Cập nhật trạng thái active trên sidebar chuyển màu xanh
   const navItemHome = document.getElementById('navItemHome');
