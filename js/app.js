@@ -236,13 +236,8 @@ window.navigateToHome = function(event) {
   // Đưa về bộ lọc ban đầu
   resetSearchAndFilters();
 
-  // Cuộn mượt lên phần giới thiệu hệ sinh thái
-  const homeSection = document.getElementById('homeOverview');
-  if (homeSection) {
-    homeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  // Cuộn mượt lên đỉnh trang
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 /**

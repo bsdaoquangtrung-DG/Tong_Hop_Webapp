@@ -63,7 +63,7 @@ html {
   color: var(--text-main);
   background-color: var(--bg-page);
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
+  scroll-padding-top: calc(var(--header-height) + 1.25rem);
   width: 100%;
 }
 
@@ -75,15 +75,18 @@ body.sky-blue-theme {
   background: linear-gradient(180deg, #E0F2FE 0%, #EBF5FB 320px, #E9F4FB 100%);
   color: var(--text-main);
   line-height: 1.5;
-  overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
 }
 
-/* ==================== 1. HEADER NHỎ GỌN & NỔI BẬT ==================== */
+/* ==================== 1. HEADER CỐ ĐỊNH Ở TRÊN CÙNG ==================== */
 .site-header {
   height: var(--header-height);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 100;
   /* Màu xanh lá cây đặc trưng Bệnh viện Đa khoa Đức Giang (#0A6836) */
   background: linear-gradient(135deg, #054C26 0%, #0A6836 45%, #06542B 100%);
@@ -336,8 +339,11 @@ body.sky-blue-theme {
 .app-layout-container {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - var(--header-height));
+  padding-top: var(--header-height);
+  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
+  width: 100%;
 }
 
 /* Backdrop di động */
@@ -358,17 +364,21 @@ body.sky-blue-theme {
   opacity: 1;
 }
 
-/* ==================== 2. THANH CÔNG CỤ BÊN TRÁI (LEFT SIDEBAR) ==================== */
+/* ==================== 2. THANH CÔNG CỤ BÊN TRÁI CỐ ĐỊNH (LEFT SIDEBAR) ==================== */
 .sidebar-left {
   width: var(--sidebar-width);
   flex-shrink: 0;
   background: linear-gradient(180deg, #CEECFD 0%, #DDF2FD 45%, #E9F5FD 100%);
   border-right: 1px solid #7DD3FC;
   box-shadow: 3px 0 16px rgba(2, 132, 199, 0.08);
-  position: sticky;
+  position: fixed;
   top: var(--header-height);
+  left: 0;
+  bottom: 0;
   height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   z-index: 90;
   scrollbar-width: thin;
   scrollbar-color: #38BDF8 transparent;
@@ -689,6 +699,9 @@ body.sky-blue-theme {
 .main-content-area {
   flex: 1;
   min-width: 0;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  max-width: calc(100% - var(--sidebar-width));
   padding: 1.5rem 2rem 3rem;
   display: flex;
   flex-direction: column;
@@ -1780,6 +1793,9 @@ body.sky-blue-theme {
   }
 
   .main-content-area {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    max-width: calc(100% - var(--sidebar-width));
     padding: 1.35rem 1.5rem 3rem;
   }
 
@@ -1916,6 +1932,9 @@ body.sky-blue-theme {
   }
 
   .main-content-area {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
     padding: 1.25rem 1.25rem 2.5rem;
   }
 
@@ -1980,6 +1999,9 @@ body.sky-blue-theme {
   }
 
   .main-content-area {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
     padding: 0.85rem 0.75rem 2.5rem;
   }
 
