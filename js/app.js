@@ -109,11 +109,12 @@ window.onQuickStaffSelect = function(email) {
   const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => s.email === email && s.canQuickSelect === true);
   if (!staff) return;
 
+  const targetPassword = staff.authPassword || staff.passwords[0];
   if (emailInput) emailInput.value = staff.email;
-  if (pwdInput) pwdInput.value = staff.roleText;
+  if (pwdInput) pwdInput.value = targetPassword;
 
   if (feedbackEl) {
-    feedbackEl.innerHTML = `✓ Đã tự động điền: <strong>${escapeHtml(staff.title)} ${escapeHtml(staff.name)}</strong> (Chức vụ: <em>${escapeHtml(staff.roleText)}</em>). Nhấn <strong>"ĐĂNG NHẬP HỆ THỐNG"</strong> để vào app.`;
+    feedbackEl.innerHTML = `✓ Đã tự động điền: <strong>${escapeHtml(staff.title)} ${escapeHtml(staff.name)}</strong> (Mật khẩu chức năng: <em>${escapeHtml(targetPassword)}</em>). Nhấn <strong>"ĐĂNG NHẬP HỆ THỐNG"</strong> để vào app.`;
     feedbackEl.style.display = 'block';
   }
 };
@@ -137,7 +138,7 @@ window.handleAuthLoginSubmit = function(event) {
   }
 
   if (!pwdVal) {
-    showAuthError('Vui lòng nhập Mật khẩu (Chức năng đảm nhiệm)!');
+    showAuthError('Vui lòng nhập Mật khẩu (Cột chức năng: VD UserH)!');
     if (pwdInput) pwdInput.focus();
     return;
   }
@@ -160,10 +161,10 @@ window.handleAuthLoginSubmit = function(event) {
     return;
   }
 
-  // Kiểm tra mật khẩu (Chức năng)
+  // Kiểm tra mật khẩu (Chức năng: VD UserH)
   const isPasswordMatch = checkStaffPassword(pwdVal, staff.passwords);
   if (!isPasswordMatch) {
-    showAuthError('❌ Mật khẩu không chính xác! Mật khẩu là tên trong cột "Chức năng / Chức vụ" đảm nhiệm trong Danh sách nhân viên.');
+    showAuthError('❌ Mật khẩu không chính xác! Mật khẩu là tên trong cột "chức năng" (VD: UserH) trong Danh sách nhân viên 2024.');
     return;
   }
 
