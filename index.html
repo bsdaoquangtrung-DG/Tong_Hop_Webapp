@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Cổng Thông Tin Chuyển Đổi Số – Khoa Vi Sinh | Bệnh Viện Đa Khoa Đức Giang</title>
   
-  <meta name="description" content="Cổng thông tin chuyển đổi số Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang. Hệ thống thanh công cụ 9 webapp số quản lý điều hành, chất lượng ISO 15189, hóa chất vật tư, CME và chuyên môn vi sinh.">
+  <meta name="description" content="Cổng thông tin chuyển đổi số Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang. Hệ thống thanh công cụ 10 webapp số quản lý điều hành, chất lượng ISO 15189, hóa chất vật tư, CME và chuyên môn vi sinh.">
   <meta name="author" content="BS.CKII. Đào Quang Trung – BVĐK Đức Giang">
   
   <!-- Google Fonts: Inter -->
@@ -71,7 +71,26 @@
         <span id="supabaseStatusText" class="status-text-compact">Supabase</span>
       </div>
 
-      <!-- Nút Quản trị với Avatar BS.CKII. Đào Quang Trung -->
+      <!-- Khu vực hiển thị thông tin cán bộ đăng nhập & Nút Đăng xuất -->
+      <div class="user-auth-profile" id="userAuthProfile" style="display: none;">
+        <div class="user-info-chip" id="userInfoChip">
+          <div class="user-avatar-badge" id="userAvatarBadge">👤</div>
+          <div class="user-text-details">
+            <div class="user-display-name" id="userDisplayName">Cán bộ khoa</div>
+            <div class="user-role-badge" id="userRoleBadge">Nhân viên</div>
+          </div>
+        </div>
+        <button type="button" class="btn-logout" id="btnLogout" onclick="logout()" title="Đăng xuất khỏi hệ thống">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Đăng xuất</span>
+        </button>
+      </div>
+
+      <!-- Nút Quản trị với Avatar BS.CKII. Đào Quang Trung (Chỉ hiển thị cho Admin) -->
       <button type="button" class="btn-admin-profile" id="btnOpenAdmin" title="Quản trị liên kết hệ thống – Admin: BS.CKII. Đào Quang Trung">
         <div class="admin-avatar-wrap">
           <img src="assets/admin_trung.jpg" alt="BS.CKII. Đào Quang Trung" class="admin-avatar-img">
@@ -105,7 +124,7 @@
         <div class="sidebar-drawer-header">
           <div class="sidebar-drawer-brand">
             <img src="assets/logo_ducgiang.png" alt="Logo BV Đức Giang" class="drawer-logo">
-            <span>DANH MỤC 10 ỨNG DỤNG</span>
+            <span id="sidebarDrawerTitle">DANH MỤC 10 ỨNG DỤNG</span>
           </div>
           <button type="button" class="btn-drawer-close" onclick="toggleSidebar(false)" aria-label="Đóng thanh menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -552,7 +571,7 @@
           <rect width="7" height="7" x="3" y="14" rx="1"/>
         </svg>
       </div>
-      <span class="bnav-label">10 Ứng dụng</span>
+      <span class="bnav-label" id="bnavAppsCountLabel">10 Ứng dụng</span>
     </button>
 
     <button type="button" class="bottom-nav-item" id="bnavSearch" onclick="focusSearchInput()">
@@ -575,10 +594,122 @@
     </button>
   </nav>
 
+  <!-- ==================== MODAL: ĐĂNG NHẬP XÁC THỰC CÁN BỘ NHÂN VIÊN ==================== -->
+  <div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" style="display: none;">
+    <div class="auth-modal-card">
+      
+      <!-- Header Màn hình Đăng nhập -->
+      <div class="auth-card-header">
+        <div class="auth-brand-seal">
+          <img src="assets/logo_ducgiang.png" alt="Logo BVĐK Đức Giang" class="auth-hospital-logo">
+        </div>
+        <div class="auth-header-text">
+          <div class="auth-hospital-label">BỆNH VIỆN ĐA KHOA ĐỨC GIANG</div>
+          <h2 class="auth-dept-title">KHOA VI SINH LÂM SÀNG</h2>
+          <div class="auth-portal-badge">CỔNG THÔNG TIN CHUYỂN ĐỔI SỐ</div>
+        </div>
+      </div>
+
+      <div class="auth-card-body">
+        <div class="auth-intro-pill">
+          <span class="auth-lock-icon">🔒</span>
+          <span>Hệ thống yêu cầu đăng nhập trước khi truy cập</span>
+        </div>
+
+        <form id="authLoginForm" onsubmit="handleAuthLoginSubmit(event)">
+          
+          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ (CHỈ DÀNH CHO 11 NHÂN VIÊN THƯỜNG - TUYỆT ĐỐI KHÔNG CÓ ADMIN) -->
+          <div class="auth-form-group quick-select-container">
+            <label for="quickStaffSelect" class="auth-label-highlight">
+              <span class="quick-bolt">⚡</span>
+              <span>Hoặc chọn nhanh cán bộ:</span>
+              <span class="quick-sub-hint">(Gợi ý cho cán bộ trong khoa)</span>
+            </label>
+            <div class="auth-select-wrapper">
+              <select id="quickStaffSelect" class="auth-select" onchange="onQuickStaffSelect(this.value)">
+                <option value="">-- Bấm vào đây để chọn nhanh cán bộ --</option>
+              </select>
+            </div>
+            <div id="quickSelectFeedback" class="quick-select-feedback" style="display:none;"></div>
+          </div>
+
+          <div class="auth-divider-line">
+            <span>HOẶC NHẬP THÔNG TIN TÀI KHOẢN</span>
+          </div>
+
+          <!-- CHỨC NĂNG 2: TÊN ĐĂNG NHẬP (GMAIL) -->
+          <div class="auth-form-group">
+            <label for="authEmail" class="auth-form-label">
+              <span>📧 Tên đăng nhập:</span>
+              <span class="auth-input-hint">(Gmail trong danh sách nhân viên 2024)</span>
+            </label>
+            <div class="auth-input-wrapper">
+              <input type="text" 
+                     id="authEmail" 
+                     class="auth-input-field" 
+                     placeholder="Ví dụ: vutrangbvdg@gmail.com..." 
+                     autocomplete="username" 
+                     required>
+            </div>
+          </div>
+
+          <!-- CHỨC NĂNG 3: MẬT KHẨU (CHỨC NĂNG ĐẢM NHIỆM) -->
+          <div class="auth-form-group">
+            <label for="authPassword" class="auth-form-label">
+              <span>🔑 Mật khẩu:</span>
+              <span class="auth-input-hint">(Tên trong cột Chức năng / Chức vụ)</span>
+            </label>
+            <div class="auth-input-wrapper password-input-wrap">
+              <input type="password" 
+                     id="authPassword" 
+                     class="auth-input-field" 
+                     placeholder="Ví dụ: KTV.Trưởng hoặc Phụ trách. Nuôi cấy..." 
+                     autocomplete="current-password" 
+                     required>
+              <button type="button" 
+                      class="btn-toggle-password" 
+                      id="btnTogglePwd" 
+                      onclick="toggleAuthPasswordVisibility()" 
+                      title="Hiện/Ẩn mật khẩu" 
+                      tabindex="-1">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <!-- Thông báo lỗi khi đăng nhập không khớp -->
+          <div id="authErrorMessage" class="auth-alert-box" style="display:none;"></div>
+
+          <!-- Nút bấm Đăng nhập -->
+          <button type="submit" class="btn-auth-primary" id="btnAuthSubmit">
+            <span>ĐĂNG NHẬP HỆ THỐNG</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+          </button>
+        </form>
+
+        <div class="auth-footer-notes">
+          <div class="auth-policy-box">
+            <div class="auth-policy-title">🛡️ Quy định phân quyền truy cập:</div>
+            <ul class="auth-policy-list">
+              <li><strong>Admin (BS.CKII. Đào Quang Trung):</strong> Tự nhập tài khoản & mật khẩu để quản trị toàn quyền và xem tất cả webapp.</li>
+              <li><strong>Cán bộ nhân viên:</strong> Sử dụng Gmail và chức vụ phụ trách để truy cập các ứng dụng nghiệp vụ được phân công.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- JavaScript Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="data/supabase-config.js"></script>
   <script src="data/apps-data.js"></script>
+  <script src="data/staff-auth.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

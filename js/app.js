@@ -14,6 +14,8 @@ const AppState = {
   activeSidebarId: 'home',
   selectedAppCardId: null,
   storageKey: 'bvdkg_microbiology_clean_v33',
+  authStorageKey: 'bvdkg_microbiology_auth_user_v1',
+  currentUser: null,
   supabaseClient: null,
   supabaseStatus: 'connecting',
   activeAdminTab: 'apps',
@@ -40,32 +42,300 @@ const SVG_ICONS = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  initAuth();
+});
+
+/**
+ * ==================== HỆ THỐNG XÁC THỰC CÁN BỘ & PHÂN QUYỀN (RBAC) ====================
+ */
+
+function initAuth() {
+  populateQuickStaffSelect();
+
+  // Kiểm tra phiên đăng nhập đã lưu trong localStorage
+  const savedSession = localStorage.getItem(AppState.authStorageKey);
+  if (savedSession) {
+    try {
+      const user = JSON.parse(savedSession);
+      if (user && user.email) {
+        AppState.currentUser = user;
+        hideAuthModal();
+        updateAuthHeaderUI();
+        initData();
+        setupEventListeners();
+        renderAll();
+        initSupabase();
+        return;
+      }
+    } catch (e) {
+      console.warn('Lỗi đọc phiên đăng nhập:', e);
+    }
+  }
+
+  // Nếu chưa có phiên đăng nhập: Hiện Auth Modal bắt buộc
+  showAuthModal();
+}
+
+function populateQuickStaffSelect() {
+  const selectEl = document.getElementById('quickStaffSelect');
+  if (!selectEl) return;
+  if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
+
+  // Lọc CHỈ các cán bộ canQuickSelect === true (11 cán bộ thường - TUYỆT ĐỐI KHÔNG CÓ ADMIN ĐÀO QUANG TRUNG)
+  const quickStaff = window.STAFF_AUTH_CONFIG.staffList.filter(s => s.canQuickSelect === true);
+
+  selectEl.innerHTML = `
+    <option value="">-- Bấm vào đây để chọn nhanh cán bộ (${quickStaff.length} cán bộ) --</option>
+    ${quickStaff.map((s, idx) => `
+      <option value="${escapeHtml(s.email)}">${idx + 1}. ${escapeHtml(s.title)} ${escapeHtml(s.name)} – ${escapeHtml(s.roleText)}</option>
+    `).join('')}
+  `;
+}
+
+window.onQuickStaffSelect = function(email) {
+  const feedbackEl = document.getElementById('quickSelectFeedback');
+  const errorEl = document.getElementById('authErrorMessage');
+  const emailInput = document.getElementById('authEmail');
+  const pwdInput = document.getElementById('authPassword');
+
+  if (errorEl) errorEl.style.display = 'none';
+
+  if (!email) {
+    if (feedbackEl) feedbackEl.style.display = 'none';
+    return;
+  }
+
+  if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
+  const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => s.email === email && s.canQuickSelect === true);
+  if (!staff) return;
+
+  if (emailInput) emailInput.value = staff.email;
+  if (pwdInput) pwdInput.value = staff.roleText;
+
+  if (feedbackEl) {
+    feedbackEl.innerHTML = `✓ Đã tự động điền: <strong>${escapeHtml(staff.title)} ${escapeHtml(staff.name)}</strong> (Chức vụ: <em>${escapeHtml(staff.roleText)}</em>). Nhấn <strong>"ĐĂNG NHẬP HỆ THỐNG"</strong> để vào app.`;
+    feedbackEl.style.display = 'block';
+  }
+};
+
+window.handleAuthLoginSubmit = function(event) {
+  if (event) event.preventDefault();
+
+  const emailInput = document.getElementById('authEmail');
+  const pwdInput = document.getElementById('authPassword');
+  const errorEl = document.getElementById('authErrorMessage');
+
+  if (errorEl) errorEl.style.display = 'none';
+
+  const emailVal = emailInput ? emailInput.value.trim() : '';
+  const pwdVal = pwdInput ? pwdInput.value.trim() : '';
+
+  if (!emailVal) {
+    showAuthError('Vui lòng nhập Tên đăng nhập (Gmail)!');
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  if (!pwdVal) {
+    showAuthError('Vui lòng nhập Mật khẩu (Chức năng đảm nhiệm)!');
+    if (pwdInput) pwdInput.focus();
+    return;
+  }
+
+  if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) {
+    showAuthError('Hệ thống dữ liệu nhân sự chưa sẵn sàng. Vui lòng tải lại trang.');
+    return;
+  }
+
+  // Chuẩn hóa tìm kiếm cán bộ theo Gmail
+  const emailLower = emailVal.toLowerCase();
+  const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => {
+    if (s.email.toLowerCase() === emailLower) return true;
+    if (s.aliases && s.aliases.some(a => a.toLowerCase() === emailLower)) return true;
+    return false;
+  });
+
+  if (!staff) {
+    showAuthError('❌ Tên đăng nhập không chính xác! Vui lòng nhập đúng Gmail trong Danh sách nhân viên 2024.');
+    return;
+  }
+
+  // Kiểm tra mật khẩu (Chức năng)
+  const isPasswordMatch = checkStaffPassword(pwdVal, staff.passwords);
+  if (!isPasswordMatch) {
+    showAuthError('❌ Mật khẩu không chính xác! Mật khẩu là tên trong cột "Chức năng / Chức vụ" đảm nhiệm trong Danh sách nhân viên.');
+    return;
+  }
+
+  // Đăng nhập thành công!
+  const authenticatedUser = {
+    id: staff.id,
+    name: staff.name,
+    title: staff.title,
+    roleText: staff.roleText,
+    email: staff.email,
+    isAdmin: Boolean(staff.isAdmin)
+  };
+
+  AppState.currentUser = authenticatedUser;
+  localStorage.setItem(AppState.authStorageKey, JSON.stringify(authenticatedUser));
+
+  hideAuthModal();
+  updateAuthHeaderUI();
   initData();
   setupEventListeners();
   renderAll();
   initSupabase();
-});
+
+  const welcomeRole = staff.isAdmin ? 'Trưởng khoa' : staff.roleText;
+  showToast(`Xin chào ${escapeHtml(staff.title)} ${escapeHtml(staff.name)} (${escapeHtml(welcomeRole)})!`);
+};
+
+function checkStaffPassword(input, validList) {
+  if (!input || !validList || !validList.length) return false;
+  const clean = str => str.toLowerCase().replace(/[\s\.\-_,]/g, '');
+  const cleanInput = clean(input);
+  return validList.some(v => clean(v) === cleanInput);
+}
+
+function showAuthError(msg) {
+  const errorEl = document.getElementById('authErrorMessage');
+  if (errorEl) {
+    errorEl.innerHTML = msg;
+    errorEl.style.display = 'block';
+  }
+}
+
+function showAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function hideAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+window.toggleAuthPasswordVisibility = function() {
+  const pwdInput = document.getElementById('authPassword');
+  const btn = document.getElementById('btnTogglePwd');
+  if (!pwdInput) return;
+  if (pwdInput.type === 'password') {
+    pwdInput.type = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    pwdInput.type = 'password';
+    if (btn) btn.textContent = '👁️';
+  }
+};
+
+function updateAuthHeaderUI() {
+  const userAuthProfile = document.getElementById('userAuthProfile');
+  const userDisplayName = document.getElementById('userDisplayName');
+  const userRoleBadge = document.getElementById('userRoleBadge');
+  const userAvatarBadge = document.getElementById('userAvatarBadge');
+  const btnOpenAdmin = document.getElementById('btnOpenAdmin');
+
+  if (!AppState.currentUser) {
+    if (userAuthProfile) userAuthProfile.style.display = 'none';
+    if (btnOpenAdmin) btnOpenAdmin.style.display = 'none';
+    return;
+  }
+
+  const user = AppState.currentUser;
+  if (userAuthProfile) userAuthProfile.style.display = 'flex';
+
+  if (userDisplayName) {
+    userDisplayName.textContent = `${user.title} ${user.name}`;
+    userDisplayName.title = `${user.title} ${user.name} (${user.email})`;
+  }
+
+  if (user.isAdmin) {
+    if (userRoleBadge) {
+      userRoleBadge.textContent = '👑 Quản trị viên (Admin)';
+      userRoleBadge.className = 'user-role-badge role-admin';
+    }
+    if (userAvatarBadge) {
+      userAvatarBadge.textContent = '👨‍⚕️';
+      userAvatarBadge.className = 'user-avatar-badge admin-avatar';
+    }
+    // Admin: Xem và dùng nút Quản trị
+    if (btnOpenAdmin) {
+      btnOpenAdmin.style.display = 'flex';
+    }
+  } else {
+    if (userRoleBadge) {
+      userRoleBadge.textContent = user.roleText;
+      userRoleBadge.className = 'user-role-badge';
+    }
+    if (userAvatarBadge) {
+      userAvatarBadge.textContent = '👤';
+      userAvatarBadge.className = 'user-avatar-badge';
+    }
+    // Nhân viên: Ẩn hoàn toàn nút Quản trị khỏi Header
+    if (btnOpenAdmin) {
+      btnOpenAdmin.style.display = 'none';
+    }
+  }
+}
+
+window.logout = function() {
+  if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng thông tin Vi sinh?')) {
+    localStorage.removeItem(AppState.authStorageKey);
+    AppState.currentUser = null;
+    updateAuthHeaderUI();
+    showAuthModal();
+    const selectEl = document.getElementById('quickStaffSelect');
+    const emailInput = document.getElementById('authEmail');
+    const pwdInput = document.getElementById('authPassword');
+    const feedbackEl = document.getElementById('quickSelectFeedback');
+    const errorEl = document.getElementById('authErrorMessage');
+    if (selectEl) selectEl.value = '';
+    if (emailInput) emailInput.value = '';
+    if (pwdInput) pwdInput.value = '';
+    if (feedbackEl) feedbackEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    showToast('Đã đăng xuất thành công.');
+    renderAll();
+  }
+};
 
 /**
- * Nạp dữ liệu cấu hình ban đầu
+ * Nạp dữ liệu cấu hình ban đầu kèm phân quyền truy cập (RBAC)
  */
 function initData() {
   const defaultApps = (window.PORTAL_CONFIG && window.PORTAL_CONFIG.applications) ? [...window.PORTAL_CONFIG.applications] : [];
   
+  // 1. Phân quyền RBAC: Nếu không phải Admin, lọc bỏ hoàn toàn 4 ứng dụng hạn chế
+  const restricted = (window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.restrictedAppIds) 
+    ? window.STAFF_AUTH_CONFIG.restrictedAppIds 
+    : ['nhat-ky-cong-viec', 'quan-ly-tien-do-cong-viec', 'thong-ke-hoa-chat', 'quan-ly-kho'];
+
+  let allowedApps = defaultApps;
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    allowedApps = defaultApps.filter(app => !restricted.includes(app.id));
+  }
+
   // Nạp từ bộ nhớ đã lưu (nếu có tùy chỉnh đường dẫn từ admin)
   const savedData = localStorage.getItem(AppState.storageKey);
   if (savedData) {
     try {
       const parsed = JSON.parse(savedData);
-      AppState.apps = defaultApps.map(def => {
+      AppState.apps = allowedApps.map(def => {
         const found = parsed.find(p => p.id === def.id);
         return found ? { ...def, url: found.url || def.url } : def;
       });
     } catch (e) {
-      AppState.apps = defaultApps;
+      AppState.apps = allowedApps;
     }
   } else {
-    AppState.apps = defaultApps;
+    AppState.apps = allowedApps;
   }
 
   AppState.categories = (window.PORTAL_CONFIG && window.PORTAL_CONFIG.categories) ? [...window.PORTAL_CONFIG.categories] : [];
@@ -139,6 +409,15 @@ function renderSidebarApps() {
   const container = document.getElementById('sidebarAppsList');
   if (!container) return;
 
+  const drawerTitle = document.getElementById('sidebarDrawerTitle');
+  if (drawerTitle) {
+    drawerTitle.textContent = `DANH MỤC ${AppState.apps.length} ỨNG DỤNG`;
+  }
+  const bnavAppsCountLabel = document.getElementById('bnavAppsCountLabel');
+  if (bnavAppsCountLabel) {
+    bnavAppsCountLabel.textContent = `${AppState.apps.length} Ứng dụng`;
+  }
+
   const sortedApps = [...AppState.apps].sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
 
   container.innerHTML = sortedApps.map((app, index) => {
@@ -170,6 +449,15 @@ function renderSidebarApps() {
  * Xử lý khi nhấn vào 1 ứng dụng trên Sidebar
  */
 window.onSidebarAppClick = function(appId) {
+  const restricted = (window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.restrictedAppIds) 
+    ? window.STAFF_AUTH_CONFIG.restrictedAppIds 
+    : ['nhat-ky-cong-viec', 'quan-ly-tien-do-cong-viec', 'thong-ke-hoa-chat', 'quan-ly-kho'];
+
+  if ((!AppState.currentUser || !AppState.currentUser.isAdmin) && restricted.includes(appId)) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nỨng dụng này chỉ dành cho Lãnh đạo khoa / Quản trị viên.');
+    return;
+  }
+
   AppState.activeSidebarId = appId;
   AppState.selectedAppCardId = appId;
   
@@ -464,6 +752,15 @@ window.onCardClick = function(event, appId) {
  * Bộ xem trực tiếp ứng dụng (In-Portal Viewer)
  */
 window.openAppViewer = function(appId) {
+  const restricted = (window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.restrictedAppIds) 
+    ? window.STAFF_AUTH_CONFIG.restrictedAppIds 
+    : ['nhat-ky-cong-viec', 'quan-ly-tien-do-cong-viec', 'thong-ke-hoa-chat', 'quan-ly-kho'];
+
+  if ((!AppState.currentUser || !AppState.currentUser.isAdmin) && restricted.includes(appId)) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nỨng dụng này chỉ dành cho Lãnh đạo khoa / Quản trị viên.');
+    return;
+  }
+
   const app = AppState.apps.find(a => a.id === appId);
   if (!app) return;
 
@@ -573,6 +870,11 @@ window.closeAllModals = function() {
  * Bảng quản trị liên kết 9 webapp & cấu hình Supabase Cloud
  */
 window.openAdminModal = function(tab = 'apps') {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nMục Quản trị hệ thống chỉ dành cho Admin (BS.CKII. Đào Quang Trung). Bạn không có quyền xem hoặc chỉnh sửa.');
+    return;
+  }
+
   AppState.activeAdminTab = tab;
   const modal = document.getElementById('adminModal');
   const container = document.getElementById('adminAppList');
@@ -587,7 +889,7 @@ window.openAdminModal = function(tab = 'apps') {
       <button type="button" 
               onclick="openAdminModal('apps')" 
               style="padding:0.45rem 1rem; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer; border:1px solid ${isAppsTab ? '#0284C7' : '#E2E8F0'}; background:${isAppsTab ? '#0284C7' : '#F8FAFC'}; color:${isAppsTab ? '#fff' : '#475569'}; transition:all 0.2s;">
-        📱 9 Liên Kết Webapp
+        📱 10 Liên Kết Webapp
       </button>
       <button type="button" 
               onclick="openAdminModal('supabase')" 
@@ -600,7 +902,7 @@ window.openAdminModal = function(tab = 'apps') {
   if (isAppsTab) {
     html += `
       <div style="font-size:0.85rem; color:#0369A1; background:#E0F2FE; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem; border:1px solid #BAE6FD;">
-        💡 Danh sách 9 liên kết webapp thực tế của Khoa Vi sinh – BV Đa khoa Đức Giang. Bạn có thể chỉnh sửa link trực tiếp bên dưới và bấm <strong>"Lưu cấu hình"</strong>.
+        💡 Danh sách 10 liên kết webapp thực tế của Khoa Vi sinh – BV Đa khoa Đức Giang. Bạn có thể chỉnh sửa link trực tiếp bên dưới và bấm <strong>"Lưu cấu hình"</strong>.
       </div>
       <div style="display:flex; flex-direction:column; gap:0.85rem; max-height:55vh; overflow-y:auto; padding-right:0.3rem;">
     `;
@@ -715,6 +1017,10 @@ window.copySupabaseSql = function() {
 };
 
 window.saveAdminChanges = function() {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ Bạn không có quyền thực hiện thao tác này!');
+    return;
+  }
   AppState.apps.forEach(app => {
     const input = document.getElementById(`admin-url-${app.id}`);
     if (input) app.url = input.value.trim();
@@ -723,16 +1029,20 @@ window.saveAdminChanges = function() {
   localStorage.setItem(AppState.storageKey, JSON.stringify(AppState.apps));
   closeAllModals();
   renderAll();
-  showToast('Đã lưu cấu hình 9 đường dẫn webapp thành công!');
+  showToast('Đã lưu cấu hình 10 đường dẫn webapp thành công!');
 };
 
 window.resetToDefaultConfig = function() {
-  if (confirm('Khôi phục về 9 liên kết webapp thực tế ban đầu?')) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ Bạn không có quyền thực hiện thao tác này!');
+    return;
+  }
+  if (confirm('Khôi phục về 10 liên kết webapp thực tế ban đầu?')) {
     localStorage.removeItem(AppState.storageKey);
-    AppState.apps = (window.PORTAL_CONFIG && window.PORTAL_CONFIG.applications) ? JSON.parse(JSON.stringify(window.PORTAL_CONFIG.applications)) : [];
+    initData();
     closeAllModals();
     renderAll();
-    showToast('Đã khôi phục 9 liên kết thực tế!');
+    showToast('Đã khôi phục 10 liên kết thực tế!');
   }
 };
 

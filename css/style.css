@@ -2440,3 +2440,505 @@ body.sky-blue-theme {
   }
 }
 
+/* ==========================================================================
+   HỆ THỐNG XÁC THỰC & PHÂN QUYỀN TRUY CẬP (RBAC AUTHENTICATION)
+   Khoa Vi Sinh – Bệnh Viện Đa Khoa Đức Giang
+   ========================================================================== */
+
+/* 1. KHU VỰC THÔNG TIN CÁN BỘ & ĐĂNG XUẤT TRÊN HEADER */
+.user-auth-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.25rem 0.6rem 0.25rem 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid var(--sky-border);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
+  transition: var(--transition);
+}
+
+.user-auth-profile:hover {
+  border-color: #38BDF8;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.14);
+}
+
+.user-info-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284C7, #0D9488);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+  flex-shrink: 0;
+}
+
+.user-avatar-badge.admin-avatar {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.user-text-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.user-display-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role-badge {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #0369A1;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.user-role-badge.role-admin {
+  color: #B45309;
+}
+
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-logout:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+  border-color: #DC2626;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+}
+
+/* 2. MÀN HÌNH / MODAL ĐĂNG NHẬP XÁC THỰC CÁN BỘ (AUTH MODAL) */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  overflow-y: auto;
+  animation: fadeInAuth 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInAuth {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-modal-card {
+  width: 100%;
+  max-width: 480px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(2, 132, 199, 0.35), 0 0 0 1px rgba(186, 230, 253, 0.8);
+  overflow: hidden;
+  position: relative;
+  animation: popInAuth 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popInAuth {
+  from { transform: scale(0.92) translateY(15px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Header Màn hình Đăng nhập */
+.auth-card-header {
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 50%, #0D9488 100%);
+  padding: 1.6rem 1.75rem;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  position: relative;
+}
+
+.auth-brand-seal {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  padding: 3px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.auth-hospital-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  display: block;
+}
+
+.auth-header-text {
+  flex: 1;
+}
+
+.auth-hospital-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #BAE6FD;
+  margin-bottom: 2px;
+}
+
+.auth-dept-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.auth-portal-badge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.64rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Thân Card Đăng nhập */
+.auth-card-body {
+  padding: 1.5rem 1.75rem 1.75rem;
+  background: #FFFFFF;
+}
+
+.auth-intro-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #166534;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1.35rem;
+}
+
+.auth-lock-icon {
+  font-size: 1rem;
+}
+
+/* Khối Chọn nhanh cán bộ (Đặc biệt nổi bật) */
+.quick-select-container {
+  background: linear-gradient(135deg, #F0FDF4 0%, #E0F2FE 100%);
+  border: 1.5px solid #38BDF8;
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08);
+}
+
+.auth-label-highlight {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #0369A1;
+  margin-bottom: 0.55rem;
+  cursor: pointer;
+}
+
+.quick-bolt {
+  color: #F59E0B;
+  font-size: 1rem;
+  animation: pulseBolt 1.8s infinite;
+}
+
+@keyframes pulseBolt {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.quick-sub-hint {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #0F766E;
+  margin-left: auto;
+}
+
+.auth-select-wrapper {
+  position: relative;
+}
+
+.auth-select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #0F172A;
+  background: #FFFFFF;
+  border: 1.5px solid #7DD3FC;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.06);
+}
+
+.auth-select:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+}
+
+.quick-select-feedback {
+  margin-top: 0.5rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #047857;
+  background: #D1FAE5;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #A7F3D0;
+}
+
+/* Đường phân cách */
+.auth-divider-line {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.15rem 0;
+  color: #94A3B8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.auth-divider-line::before,
+.auth-divider-line::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.auth-divider-line span {
+  padding: 0 0.75rem;
+}
+
+/* Các trường nhập liệu thông thường */
+.auth-form-group {
+  margin-bottom: 1.1rem;
+}
+
+.auth-form-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.4rem;
+}
+
+.auth-input-hint {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.auth-input-wrapper {
+  position: relative;
+}
+
+.auth-input-field {
+  width: 100%;
+  padding: 0.68rem 0.9rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #0F172A;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.auth-input-field:focus {
+  background: #FFFFFF;
+  border-color: #0284C7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.password-input-wrap .auth-input-field {
+  padding-right: 2.75rem;
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 1.05rem;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  color: #64748B;
+  transition: transform 0.15s ease;
+}
+
+.btn-toggle-password:hover {
+  transform: translateY(-50%) scale(1.15);
+  color: #0284C7;
+}
+
+/* Cảnh báo lỗi */
+.auth-alert-box {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 1.15rem;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Nút Submit Đăng nhập */
+.btn-auth-primary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.35rem;
+}
+
+.btn-auth-primary:hover {
+  background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.45);
+}
+
+.btn-auth-primary:active {
+  transform: translateY(0);
+}
+
+/* Ghi chú chính sách bảo mật */
+.auth-footer-notes {
+  margin-top: 1.35rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid #F1F5F9;
+}
+
+.auth-policy-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.72rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.auth-policy-title {
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.35rem;
+}
+
+.auth-policy-list {
+  padding-left: 1.15rem;
+  margin: 0;
+}
+
+.auth-policy-list li {
+  margin-bottom: 0.25rem;
+}
+
+/* Mobile Responsive cho Màn hình Đăng nhập */
+@media (max-width: 640px) {
+  .auth-modal-overlay {
+    padding: 0.75rem;
+  }
+
+  .auth-modal-card {
+    border-radius: 18px;
+  }
+
+  .auth-card-header {
+    padding: 1.25rem 1.25rem;
+    gap: 0.85rem;
+  }
+
+  .auth-brand-seal {
+    width: 48px;
+    height: 48px;
+  }
+
+  .auth-dept-title {
+    font-size: 1.02rem;
+  }
+
+  .auth-card-body {
+    padding: 1.25rem;
+  }
+
+  .user-display-name {
+    max-width: 100px;
+  }
+}
