@@ -129,13 +129,13 @@ function populateQuickStaffSelect() {
   if (!selectEl) return;
   if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
 
-  // Lọc CHỈ các cán bộ canQuickSelect === true (11 cán bộ thường - TUYỆT ĐỐI KHÔNG CÓ ADMIN ĐÀO QUANG TRUNG)
-  const quickStaff = window.STAFF_AUTH_CONFIG.staffList.filter(s => s.canQuickSelect === true);
+  // Lấy toàn bộ 12 cán bộ nhân viên kể cả Admin theo yêu cầu
+  const quickStaff = window.STAFF_AUTH_CONFIG.staffList;
 
   selectEl.innerHTML = `
     <option value="">-- Bấm vào đây để chọn nhanh cán bộ (${quickStaff.length} cán bộ) --</option>
     ${quickStaff.map((s, idx) => `
-      <option value="${escapeHtml(s.email)}">${idx + 1}. ${escapeHtml(s.title)} ${escapeHtml(s.name)} – ${escapeHtml(s.roleText)}</option>
+      <option value="${escapeHtml(s.email)}">${idx + 1}. ${escapeHtml(s.title)} ${escapeHtml(s.name)} – ${escapeHtml(s.roleText)}${s.isAdmin ? ' (Admin)' : ''}</option>
     `).join('')}
   `;
 }
@@ -150,19 +150,27 @@ window.onQuickStaffSelect = function(email) {
 
   if (!email) {
     if (feedbackEl) feedbackEl.style.display = 'none';
+    if (emailInput) emailInput.value = '';
+    if (pwdInput) pwdInput.value = '';
     return;
   }
 
   if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
-  const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => s.email === email && s.canQuickSelect === true);
+  const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => s.email === email);
   if (!staff) return;
 
-  const targetPassword = staff.authPassword || staff.passwords[0];
+  // 1. Chỉ giúp link nhập nhanh Tên đăng nhập (Gmail)
   if (emailInput) emailInput.value = staff.email;
-  if (pwdInput) pwdInput.value = targetPassword;
 
+  // 2. Mật khẩu bắt buộc người dùng tự nhập tay, xóa trống và focus để nhập an toàn
+  if (pwdInput) {
+    pwdInput.value = '';
+    pwdInput.focus();
+  }
+
+  // 3. Thông báo xác nhận chọn cán bộ an toàn (tuyệt đối không hiển thị gợi ý mật khẩu tránh bị lộ)
   if (feedbackEl) {
-    feedbackEl.innerHTML = `✓ Đã tự động điền: <strong>${escapeHtml(staff.title)} ${escapeHtml(staff.name)}</strong> (Mật khẩu chức năng: <em>${escapeHtml(targetPassword)}</em>). Nhấn <strong>"ĐĂNG NHẬP HỆ THỐNG"</strong> để vào app.`;
+    feedbackEl.innerHTML = `✓ Đã chọn: <strong>${escapeHtml(staff.title)} ${escapeHtml(staff.name)}</strong> (${escapeHtml(staff.roleText)}). Vui lòng <strong>tự nhập mật khẩu</strong> bên dưới để đăng nhập.`;
     feedbackEl.style.display = 'block';
   }
 };

@@ -6,10 +6,10 @@
  * QUY TẮC MẬT KHẨU CẬP NHẬT THEO YÊU CẦU:
  * 1. Tên đăng nhập: Cột Gmail của cán bộ.
  * 2. Mật khẩu: Tên trong cột "chức năng" (User + Chữ cái đầu tên gọi: VD huyenct1992@gmail.com -> UserH).
- * 3. Chức năng "Hoặc chọn nhanh cán bộ": CHỈ gợi ý 11 nhân viên thường (tự động điền Gmail và Mật khẩu User*).
- *    -> TUYỆT ĐỐI KHÔNG gợi ý Admin (BS.CKII. Đào Quang Trung). Admin phải tự nhớ và nhập tay.
+ * 3. Chức năng "Hoặc chọn nhanh cán bộ": Cho phép chọn nhanh cả 12 cán bộ (kể cả Admin).
+ *    -> Chỉ giúp nhập nhanh Tên đăng nhập (Gmail), còn Mật khẩu bắt buộc người dùng tự nhập tay (không hiển thị gợi ý để tránh lộ mật khẩu).
  * 4. Phân quyền (RBAC):
- *    - Tài khoản Admin (BS.CKII. Đào Quang Trung): Xem đủ 10 webapps và toàn quyền Quản trị.
+ *    - Tài khoản Admin (BS.CKII. Đào Quang Trung): Mật khẩu Admintrung, xem đủ 10 webapps và toàn quyền Quản trị.
  *    - Các tài khoản khác: KHÔNG ĐƯỢC XEM 4 webapps sau:
  *      + "2. Nhật ký công việc" (nhat-ky-cong-viec)
  *      + "3. Quản lý tiến độ công việc" (quan-ly-tien-do-cong-viec)
@@ -29,7 +29,7 @@ const STAFF_AUTH_CONFIG = {
 
   // Danh sách 12 tài khoản cán bộ nhân viên
   staffList: [
-    // 1. ADMIN - TRƯỞNG KHOA (TUYỆT ĐỐI KHÔNG GỢI Ý CHỌN NHANH, PHẢI TỰ NHẬP TAY)
+    // 1. ADMIN - TRƯỞNG KHOA
     {
       id: 'admin_trung',
       name: 'Đào Quang Trung',
@@ -40,7 +40,7 @@ const STAFF_AUTH_CONFIG = {
       authPassword: 'Admintrung',
       passwords: ['Admintrung', 'admintrung', 'ADMINTRUNG', ' Admintrung', 'Admintrung ', 'Trưởng khoa', 'Trưởng Khoa', 'truong khoa', 'daoquangtrung'],
       isAdmin: true,
-      canQuickSelect: false // BẢO MẬT: Không xuất hiện trong dropdown chọn nhanh
+      canQuickSelect: true
     },
 
     // 2. KTV. TRƯỞNG - VŨ THỊ THU TRANG

@@ -910,16 +910,16 @@
 
         <form id="authLoginForm" onsubmit="handleAuthLoginSubmit(event)">
           
-          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ (CHỈ DÀNH CHO 11 NHÂN VIÊN THƯỜNG - TUYỆT ĐỐI KHÔNG CÓ ADMIN) -->
+          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ (CHO PHÉP CHỌN CẢ 12 CÁN BỘ KỂ CẢ ADMIN) -->
           <div class="auth-form-group quick-select-container">
             <label for="quickStaffSelect" class="auth-label-highlight">
               <span class="quick-bolt">⚡</span>
               <span>Hoặc chọn nhanh cán bộ:</span>
-              <span class="quick-sub-hint">(Gợi ý cho cán bộ trong khoa)</span>
+              <span class="quick-sub-hint">(Nhập nhanh Tên đăng nhập)</span>
             </label>
             <div class="auth-select-wrapper">
               <select id="quickStaffSelect" class="auth-select" onchange="onQuickStaffSelect(this.value)">
-                <option value="">-- Bấm vào đây để chọn nhanh cán bộ --</option>
+                <option value="">-- Bấm vào đây để chọn nhanh cán bộ (12 cán bộ) --</option>
               </select>
             </div>
             <div id="quickSelectFeedback" class="quick-select-feedback" style="display:none;"></div>
@@ -939,23 +939,23 @@
               <input type="text" 
                      id="authEmail" 
                      class="auth-input-field" 
-                     placeholder="Ví dụ: vutrangbvdg@gmail.com..." 
+                     placeholder="Ví dụ: bsdaoquangtrung@gmail.com, vutrangbvdg@gmail.com..." 
                      autocomplete="username" 
                      required>
             </div>
           </div>
 
-          <!-- CHỨC NĂNG 3: MẬT KHẨU (CỘT CHỨC NĂNG: VD UserH) -->
+          <!-- CHỨC NĂNG 3: MẬT KHẨU (BẮT BUỘC TỰ NHẬP - KHÔNG HIỂN THỊ GỢI Ý ĐỂ TRÁNH LỘ MẬT KHẨU) -->
           <div class="auth-form-group">
             <label for="authPassword" class="auth-form-label">
               <span>🔑 Mật khẩu:</span>
-              <span class="auth-input-hint">(Cột chức năng: VD UserH...)</span>
+              <span class="auth-input-hint text-amber">🔒 Bắt buộc tự nhập mật khẩu</span>
             </label>
             <div class="auth-input-wrapper password-input-wrap">
               <input type="password" 
                      id="authPassword" 
                      class="auth-input-field" 
-                     placeholder="Ví dụ: UserH, UserT, UserL..." 
+                     placeholder="Nhập mật khẩu bảo mật của bạn..." 
                      autocomplete="current-password" 
                      required>
               <button type="button" 
@@ -1002,8 +1002,8 @@
           <div class="auth-policy-box">
             <div class="auth-policy-title">🛡️ Quy định phân quyền truy cập:</div>
             <ul class="auth-policy-list">
-              <li><strong>Admin (BS.CKII. Đào Quang Trung):</strong> Tự nhập tài khoản & mật khẩu để quản trị toàn quyền và xem tất cả webapp.</li>
-              <li><strong>Cán bộ nhân viên:</strong> Sử dụng Gmail và mật khẩu cột chức năng (VD: UserH) để truy cập các ứng dụng nghiệp vụ được phân công.</li>
+              <li><strong>Admin (BS.CKII. Đào Quang Trung):</strong> Quản trị toàn quyền và xem tất cả 10 webapp.</li>
+              <li><strong>Cán bộ nhân viên:</strong> Tự nhập mật khẩu bảo mật cá nhân để truy cập các ứng dụng nghiệp vụ được phân công.</li>
             </ul>
           </div>
         </div>
