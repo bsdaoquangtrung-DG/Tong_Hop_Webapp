@@ -413,6 +413,91 @@
         </div>
       </section>
 
+      <!-- ==================== MỤC MỚI: TỔNG HỢP BÁO CÁO KHOA VI SINH ==================== -->
+      <section class="dept-reports-section" id="departmentReportsSection" style="display: none;">
+        <div class="reports-container-card">
+          
+          <!-- Header của Bảng Báo Cáo -->
+          <div class="reports-header-box">
+            <div class="reports-header-top">
+              <div class="reports-title-wrap">
+                <div class="reports-badge-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="reports-title">TỔNG HỢP BÁO CÁO KHOA VI SINH</h2>
+                  <p class="reports-subtitle">Bệnh viện Đa khoa Đức Giang • Hệ sinh thái liên kết báo cáo chuyên ngành theo năm</p>
+                </div>
+              </div>
+
+              <!-- Nhóm nút chức năng quản trị & điều hướng -->
+              <div class="reports-actions-group">
+                <button type="button" class="btn-report-back" onclick="navigateToHome(event)" title="Quay lại Trang chủ">
+                  <span>← Về Trang chủ</span>
+                </button>
+
+                <!-- Nút Thêm mới: Chỉ hiển thị cho Admin -->
+                <button type="button" class="btn-report-primary" id="btnAdminAddReport" onclick="openAddReportModal()" style="display:none;" title="Thêm mới báo cáo (Chỉ dành cho Admin)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Thêm mới</span>
+                </button>
+
+                <!-- Nút Thêm năm: Chỉ hiển thị cho Admin -->
+                <button type="button" class="btn-report-secondary" id="btnAdminAddYear" onclick="promptAddNewReportYear()" style="display:none;" title="Thêm cột năm mới (Chỉ dành cho Admin)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M12 14v4"/><path d="M10 16h4"/>
+                  </svg>
+                  <span>Thêm năm</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Thanh tìm kiếm nhanh & Thông tin phân quyền -->
+            <div class="reports-subbar">
+              <div class="reports-search-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input type="text" id="reportSearchInput" class="report-search-field" placeholder="Tìm theo nội dung báo cáo, người phụ trách, lưu ý..." oninput="onReportSearchInput(this.value)">
+                <button type="button" id="btnClearReportSearch" class="btn-clear-report-search" onclick="clearReportSearch()" style="display:none;" title="Xóa tìm kiếm">✕</button>
+              </div>
+
+              <div class="reports-role-indicator" id="reportsRoleIndicator">
+                <!-- Nạp badge phân quyền qua JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Bảng Dữ Liệu Báo Cáo Khoa Vi Sinh Chuẩn Responsive -->
+          <div class="reports-table-wrapper">
+            <table class="reports-table" id="reportsDataTable">
+              <!-- Render động qua JavaScript -->
+            </table>
+          </div>
+
+          <!-- Chú thích chân bảng báo cáo -->
+          <div class="reports-footer-notes">
+            <div class="reports-note-item">
+              <span class="note-bullet">💡</span>
+              <span><strong>Đường link báo cáo:</strong> Bấm vào nút <strong>Năm</strong> tương ứng để mở file báo cáo (Google Docs, Drive, Sheets, Vercel...) trong tab mới.</span>
+            </div>
+            <div class="reports-note-item">
+              <span class="note-bullet">🛡️</span>
+              <span><strong>Quy định quản trị:</strong> Tất cả tài khoản nhân sự đều có thể xem bảng báo cáo. Chỉ tài khoản <strong>Admin (BS.CKII. Đào Quang Trung)</strong> mới có quyền Thêm mới, Sửa, Xóa và cập nhật nội dung cột <strong>Lưu ý</strong>.</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       <!-- ==================== 6. FOOTER THÔNG TIN NGƯỜI PHỤ TRÁCH ==================== -->
       <footer class="site-footer">
         <div class="footer-container">
@@ -547,6 +632,83 @@
           <button type="button" class="btn-save-primary" onclick="saveAdminChanges()">💾 Lưu cấu hình</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: THÊM MỚI / CHỈNH SỬA BÁO CÁO KHOA VI SINH ==================== -->
+  <div class="modal-backdrop" id="reportModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <div class="modal-title" id="reportModalTitle">➕ Thêm Mới Báo Cáo Khoa Vi Sinh</div>
+        <button type="button" class="btn-modal-close" onclick="closeReportModal()">✕</button>
+      </div>
+
+      <form id="reportForm" onsubmit="handleReportFormSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="reportEditId" value="">
+
+          <!-- Cột 2: Nội dung báo cáo -->
+          <div class="auth-form-group">
+            <label for="reportContentInput" class="auth-form-label">
+              <span>📝 Nội dung báo cáo: <strong class="text-danger">*</strong></span>
+              <span class="auth-input-hint">(Tên báo cáo, công việc cần tổng hợp)</span>
+            </label>
+            <input type="text" 
+                   id="reportContentInput" 
+                   class="auth-input-field" 
+                   placeholder="Ví dụ: Báo cáo giám sát vi khuẩn kháng thuốc (AMR)..." 
+                   required>
+          </div>
+
+          <!-- Cột 3: Người phụ trách -->
+          <div class="auth-form-group">
+            <label for="reportResponsibleInput" class="auth-form-label">
+              <span>👤 Người phụ trách:</span>
+              <span class="auth-input-hint">(Chọn nhanh từ danh sách cán bộ hoặc nhập tự do)</span>
+            </label>
+            <div class="resp-input-combo">
+              <input type="text" 
+                     id="reportResponsibleInput" 
+                     class="auth-input-field" 
+                     placeholder="Ví dụ: BS.CKII. Đào Quang Trung, CN. Chu Thị Huyền...">
+              <select id="quickResponsibleSelect" class="auth-input-field select-responsible-dropdown" onchange="onSelectQuickResponsible(this.value)">
+                <option value="">-- ⚡ Hoặc chọn nhanh cán bộ --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cột 4: Đường Link theo từng năm -->
+          <div class="report-links-box">
+            <div class="report-links-header">
+              <div class="links-title">
+                <span>🔗 Đường link báo cáo theo năm:</span>
+                <span class="auth-input-hint">(Dán link Google Drive, Docs, Sheets, Vercel...)</span>
+              </div>
+              <button type="button" class="btn-sub-add-year" onclick="promptAddNewReportYear()">+ Thêm năm mới</button>
+            </div>
+            <div id="reportYearInputsContainer" class="report-years-input-grid">
+              <!-- Render tự động các năm: 2024, 2025, 2026... -->
+            </div>
+          </div>
+
+          <!-- Cột 5: Lưu ý (Chỉ Admin mới có quyền thêm nội dung) -->
+          <div class="auth-form-group">
+            <label for="reportNotesInput" class="auth-form-label">
+              <span>📌 Lưu ý:</span>
+              <span class="auth-input-hint text-amber">🔒 Chỉ Admin có quyền thêm/sửa nội dung cột này</span>
+            </label>
+            <textarea id="reportNotesInput" 
+                      class="auth-input-field report-textarea" 
+                      rows="2" 
+                      placeholder="Ghi chú lãnh đạo khoa, thời hạn nộp, chỉ đạo thực hiện..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer justify-between">
+          <button type="button" class="btn-admin-compact" onclick="closeReportModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-save-primary" id="btnSaveReport">💾 Lưu thông tin báo cáo</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -710,6 +872,7 @@
   <script src="data/supabase-config.js"></script>
   <script src="data/apps-data.js"></script>
   <script src="data/staff-auth.js"></script>
+  <script src="data/reports-data.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

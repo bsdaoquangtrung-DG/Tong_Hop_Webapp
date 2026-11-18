@@ -19,12 +19,16 @@ const AppState = {
   supabaseClient: null,
   supabaseStatus: 'connecting',
   activeAdminTab: 'apps',
-  currentViewingApp: null
+  currentViewingApp: null,
+  departmentReports: [],
+  reportYears: ["2024", "2025", "2026"],
+  reportSearchQuery: ''
 };
 
 // SVG Icons chuẩn y tế và chuyên môn vi sinh
 const SVG_ICONS = {
   Home: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  FileText: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
   ListChecks: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>`,
   ClipboardList: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>`,
   CalendarDays: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>`,
@@ -340,6 +344,9 @@ function initData() {
   }
 
   AppState.categories = (window.PORTAL_CONFIG && window.PORTAL_CONFIG.categories) ? [...window.PORTAL_CONFIG.categories] : [];
+
+  // Nạp dữ liệu Báo Cáo Khoa Vi Sinh
+  initReportsData();
 }
 
 /**
@@ -401,10 +408,13 @@ function renderAll() {
   updateMetrics();
   renderCategoryTabs();
   renderAppsGrid();
+  renderDepartmentReportsTable();
 }
 
 /**
- * 1. RENDER 9 ỨNG DỤNG LIÊN KẾT BÊN THANH CÔNG CỤ TRÁI (SIDEBAR)
+ * 1. RENDER THANH CÔNG CỤ TRÁI (SIDEBAR)
+ * Mục 1 ở ngay đầu tiên: "1. Báo cáo Khoa Vi sinh" (Tất cả tài khoản đều xem được)
+ * Tiếp theo là danh mục các Webapp chuyên ngành
  */
 function renderSidebarApps() {
   const container = document.getElementById('sidebarAppsList');
@@ -421,7 +431,29 @@ function renderSidebarApps() {
 
   const sortedApps = [...AppState.apps].sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
 
-  container.innerHTML = sortedApps.map((app, index) => {
+  // MỤC Ở NGAY ĐẦU TIÊN: "1. Báo cáo Khoa Vi sinh" (Tất cả tài khoản đều xem được)
+  const isReportsActive = AppState.activeSidebarId === 'dept-reports';
+  const reportItemHtml = `
+    <button type="button" 
+            class="sidebar-app-btn ${isReportsActive ? 'active' : ''}" 
+            id="sidebar-item-dept-reports"
+            onclick="navigateToDepartmentReports(event)"
+            title="1. Báo cáo Khoa Vi sinh – Bảng tổng hợp liên kết link báo cáo theo năm">
+      <div class="sidebar-app-icon" aria-hidden="true">
+        ${SVG_ICONS.FileText}
+      </div>
+      <div class="sidebar-app-meta">
+        <span class="sidebar-app-title">1. Báo cáo Khoa Vi sinh</span>
+        <span class="sidebar-app-category">Tổng hợp báo cáo</span>
+      </div>
+      <div class="sidebar-app-arrow">
+        ${SVG_ICONS.ChevronRight}
+      </div>
+    </button>
+  `;
+
+  // Danh mục các ứng dụng chuyên ngành
+  const appsHtml = sortedApps.map((app) => {
     const iconSvg = SVG_ICONS[app.icon] || SVG_ICONS['Microscope'];
     const isActive = AppState.activeSidebarId === app.id;
 
@@ -435,7 +467,7 @@ function renderSidebarApps() {
           ${iconSvg}
         </div>
         <div class="sidebar-app-meta">
-          <span class="sidebar-app-title">${index + 1}. ${escapeHtml(app.name)}</span>
+          <span class="sidebar-app-title">${escapeHtml(app.name)}</span>
           <span class="sidebar-app-category">${escapeHtml(app.badge || app.category)}</span>
         </div>
         <div class="sidebar-app-arrow">
@@ -444,6 +476,8 @@ function renderSidebarApps() {
       </button>
     `;
   }).join('');
+
+  container.innerHTML = reportItemHtml + appsHtml;
 }
 
 /**
@@ -462,9 +496,22 @@ window.onSidebarAppClick = function(appId) {
   AppState.activeSidebarId = appId;
   AppState.selectedAppCardId = appId;
   
-  // Bỏ active của nút Trang chủ
+  // Hiển thị lại các section Webapp, ẩn Bảng Báo Cáo
+  const homeOverview = document.getElementById('homeOverview');
+  const catalogSection = document.getElementById('appsCatalogSection');
+  const appsGridSection = document.querySelector('.apps-display-section');
+  const reportsSection = document.getElementById('departmentReportsSection');
+
+  if (homeOverview) homeOverview.style.display = 'block';
+  if (catalogSection) catalogSection.style.display = 'block';
+  if (appsGridSection) appsGridSection.style.display = 'block';
+  if (reportsSection) reportsSection.style.display = 'none';
+
+  // Bỏ active của nút Trang chủ & Báo cáo khoa
   const navItemHome = document.getElementById('navItemHome');
   if (navItemHome) navItemHome.classList.remove('active');
+  const reportBtn = document.getElementById('sidebar-item-dept-reports');
+  if (reportBtn) reportBtn.classList.remove('active');
 
   // Đánh dấu active cho app trong sidebar
   document.querySelectorAll('.sidebar-app-btn').forEach(btn => {
@@ -512,11 +559,25 @@ window.navigateToHome = function(event) {
   AppState.activeSidebarId = 'home';
   AppState.selectedAppCardId = null;
 
+  // Hiển thị lại các section Webapp, ẩn Bảng Báo Cáo
+  const homeOverview = document.getElementById('homeOverview');
+  const catalogSection = document.getElementById('appsCatalogSection');
+  const appsGridSection = document.querySelector('.apps-display-section');
+  const reportsSection = document.getElementById('departmentReportsSection');
+
+  if (homeOverview) homeOverview.style.display = 'block';
+  if (catalogSection) catalogSection.style.display = 'block';
+  if (appsGridSection) appsGridSection.style.display = 'block';
+  if (reportsSection) reportsSection.style.display = 'none';
+
   // Kích hoạt nút Trang chủ trên sidebar
   const navItemHome = document.getElementById('navItemHome');
   if (navItemHome) navItemHome.classList.add('active');
 
-  // Xóa active của các app trong sidebar
+  // Xóa active của nút Báo cáo và các app trong sidebar
+  const reportBtn = document.getElementById('sidebar-item-dept-reports');
+  if (reportBtn) reportBtn.classList.remove('active');
+
   document.querySelectorAll('.sidebar-app-btn').forEach(btn => {
     btn.classList.remove('active');
   });
@@ -536,6 +597,48 @@ window.navigateToHome = function(event) {
   resetSearchAndFilters();
 
   // Cuộn mượt lên đỉnh trang
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+/**
+ * Xử lý khi nhấn vào "1. BÁO CÁO KHOA VI SINH" trên Sidebar
+ * Hiển thị bảng "Tổng Hợp Báo Cáo Khoa Vi Sinh"
+ */
+window.navigateToDepartmentReports = function(event) {
+  if (event) event.preventDefault();
+
+  AppState.activeSidebarId = 'dept-reports';
+  AppState.selectedAppCardId = null;
+
+  // 1. Sidebar Active State: Chuyển màu xanh nổi bật như Trang chủ
+  const navItemHome = document.getElementById('navItemHome');
+  if (navItemHome) navItemHome.classList.remove('active');
+
+  document.querySelectorAll('.sidebar-app-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  const reportBtn = document.getElementById('sidebar-item-dept-reports');
+  if (reportBtn) reportBtn.classList.add('active');
+
+  // 2. Chuyển đổi màn hình chính: Ẩn Trang chủ & Webapps, Hiện Bảng Báo Cáo
+  const homeOverview = document.getElementById('homeOverview');
+  const catalogSection = document.getElementById('appsCatalogSection');
+  const appsGridSection = document.querySelector('.apps-display-section');
+  const reportsSection = document.getElementById('departmentReportsSection');
+
+  if (homeOverview) homeOverview.style.display = 'none';
+  if (catalogSection) catalogSection.style.display = 'none';
+  if (appsGridSection) appsGridSection.style.display = 'none';
+  if (reportsSection) reportsSection.style.display = 'block';
+
+  // 3. Đóng drawer mobile nếu đang mở
+  toggleSidebar(false);
+
+  // 4. Render Bảng Báo Cáo
+  renderDepartmentReportsTable();
+
+  // 5. Cuộn mượt lên đầu bảng
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -1110,3 +1213,492 @@ function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+/**
+ * ==========================================================================
+ * MODULE: TỔNG HỢP BÁO CÁO KHOA VI SINH – BỆNH VIỆN ĐA KHOA ĐỨC GIANG
+ * 
+ * Quản lý & liên kết các link báo cáo theo từng năm
+ * Phân quyền (RBAC):
+ * - Mọi tài khoản nhân viên & admin đều vào xem được
+ * - Chỉ tài khoản Admin mới có quyền: Thêm mới, Thêm năm, Sửa, Xóa và nhập cột Lưu ý
+ * - Hỏi xác nhận trước khi Sửa và Xóa
+ * ==========================================================================
+ */
+
+function initReportsData() {
+  const defaultCfg = window.REPORTS_CONFIG || {};
+  const defaultYears = defaultCfg.defaultYears || ["2024", "2025", "2026"];
+  const defaultReports = defaultCfg.defaultReports || [];
+
+  // 1. Nạp danh sách các năm
+  const savedYears = localStorage.getItem(defaultCfg.yearsStorageKey || 'bvdkg_department_reports_years_v1');
+  if (savedYears) {
+    try {
+      const parsedYears = JSON.parse(savedYears);
+      if (Array.isArray(parsedYears) && parsedYears.length > 0) {
+        AppState.reportYears = parsedYears;
+      } else {
+        AppState.reportYears = [...defaultYears];
+      }
+    } catch (e) {
+      AppState.reportYears = [...defaultYears];
+    }
+  } else {
+    AppState.reportYears = [...defaultYears];
+  }
+
+  // 2. Nạp danh sách các báo cáo
+  const savedReports = localStorage.getItem(defaultCfg.storageKey || 'bvdkg_department_reports_v1');
+  if (savedReports) {
+    try {
+      const parsedReports = JSON.parse(savedReports);
+      if (Array.isArray(parsedReports) && parsedReports.length > 0) {
+        AppState.departmentReports = parsedReports;
+      } else {
+        AppState.departmentReports = [...defaultReports];
+      }
+    } catch (e) {
+      AppState.departmentReports = [...defaultReports];
+    }
+  } else {
+    AppState.departmentReports = [...defaultReports];
+  }
+}
+
+function saveDepartmentReportsToStorage() {
+  const defaultCfg = window.REPORTS_CONFIG || {};
+  try {
+    localStorage.setItem(defaultCfg.storageKey || 'bvdkg_department_reports_v1', JSON.stringify(AppState.departmentReports));
+    localStorage.setItem(defaultCfg.yearsStorageKey || 'bvdkg_department_reports_years_v1', JSON.stringify(AppState.reportYears));
+  } catch (e) {
+    console.error('Lỗi lưu báo cáo vào localStorage:', e);
+  }
+}
+
+/**
+ * RENDER BẢNG TỔNG HỢP BÁO CÁO KHOA VI SINH
+ */
+function renderDepartmentReportsTable() {
+  const table = document.getElementById('reportsDataTable');
+  if (!table) return;
+
+  const isAdmin = AppState.currentUser && AppState.currentUser.isAdmin;
+  const years = AppState.reportYears || ["2024", "2025", "2026"];
+  const query = (AppState.reportSearchQuery || '').toLowerCase().trim();
+
+  // 1. Ẩn/Hiện các nút chức năng theo quyền
+  const btnAddReport = document.getElementById('btnAdminAddReport');
+  const btnAddYear = document.getElementById('btnAdminAddYear');
+  const roleIndicator = document.getElementById('reportsRoleIndicator');
+
+  if (btnAddReport) btnAddReport.style.display = isAdmin ? 'inline-flex' : 'none';
+  if (btnAddYear) btnAddYear.style.display = isAdmin ? 'inline-flex' : 'none';
+
+  if (roleIndicator) {
+    if (isAdmin) {
+      roleIndicator.innerHTML = `
+        <span class="role-badge admin-badge">
+          🛡️ Quyền Admin: BS.CKII. Đào Quang Trung (Toàn quyền Thêm mới, Sửa, Xóa & Nhập cột Lưu ý)
+        </span>
+      `;
+    } else {
+      const staffName = AppState.currentUser ? AppState.currentUser.name : 'Cán bộ nhân viên';
+      roleIndicator.innerHTML = `
+        <span class="role-badge staff-badge">
+          👁️ Chế độ xem: ${escapeHtml(staffName)} (Tra cứu & Mở các link báo cáo chuyên ngành)
+        </span>
+      `;
+    }
+  }
+
+  // 2. Lọc dữ liệu theo tìm kiếm
+  const filtered = AppState.departmentReports.filter(rep => {
+    if (!query) return true;
+    const matchContent = (rep.content || '').toLowerCase().includes(query);
+    const matchResp = (rep.responsible || '').toLowerCase().includes(query);
+    const matchNotes = (rep.notes || '').toLowerCase().includes(query);
+    return matchContent || matchResp || matchNotes;
+  });
+
+  // 3. Header Bảng: 2 hàng header (Cột 4 là Đường Link chia thành các cột năm nhỏ hơn)
+  const theadHtml = `
+    <thead>
+      <tr class="header-main-row">
+        <th class="th-stt" rowspan="2">STT</th>
+        <th class="th-content" rowspan="2">Nội dung báo cáo</th>
+        <th class="th-responsible" rowspan="2">Người phụ trách</th>
+        <th class="th-links-group" colspan="${years.length}">
+          <div class="links-group-header">
+            <span>Đường Link Báo Cáo</span>
+            ${isAdmin ? `<button type="button" class="btn-th-add-year" onclick="promptAddNewReportYear()" title="Bổ sung thêm cột năm mới">+ Thêm năm</button>` : ''}
+          </div>
+        </th>
+        <th class="th-notes" rowspan="2">
+          <span>Lưu ý</span>
+          <span class="th-note-tag" title="Chỉ Admin mới có quyền thêm/sửa nội dung cột này">Admin</span>
+        </th>
+        ${isAdmin ? `<th class="th-actions" rowspan="2">Thao tác</th>` : ''}
+      </tr>
+      <tr class="header-years-row">
+        ${years.map(yr => `<th class="th-year">Năm ${yr}</th>`).join('')}
+      </tr>
+    </thead>
+  `;
+
+  // 4. Body Bảng
+  let tbodyHtml = '';
+  if (filtered.length === 0) {
+    const totalCols = 4 + years.length + (isAdmin ? 1 : 0);
+    tbodyHtml = `
+      <tbody>
+        <tr>
+          <td colspan="${totalCols}" class="empty-table-cell">
+            <div class="empty-table-state">
+              <span class="empty-table-icon">📄</span>
+              <p>Không tìm thấy báo cáo nào phù hợp với yêu cầu tìm kiếm.</p>
+              ${isAdmin ? `<button type="button" class="btn-report-primary" onclick="openAddReportModal()">➕ Thêm mới báo cáo ngay</button>` : ''}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    `;
+  } else {
+    tbodyHtml = `
+      <tbody>
+        ${filtered.map((rep, idx) => {
+          return `
+            <tr class="report-row" id="report-row-${rep.id}">
+              <td class="td-stt text-center font-bold">${idx + 1}</td>
+              <td class="td-content">
+                <div class="report-content-box">
+                  <span class="report-doc-icon">📑</span>
+                  <span class="report-content-title">${escapeHtml(rep.content)}</span>
+                </div>
+              </td>
+              <td class="td-responsible">
+                <div class="resp-pill">
+                  <span class="resp-avatar-icon">👤</span>
+                  <span class="resp-text">${escapeHtml(rep.responsible || 'Chưa cập nhật')}</span>
+                </div>
+              </td>
+              ${years.map(yr => {
+                const link = (rep.links && rep.links[yr]) ? rep.links[yr].trim() : '';
+                if (link) {
+                  return `
+                    <td class="td-link text-center">
+                      <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="tbl-report-link" title="Mở link báo cáo năm ${yr} trong tab mới">
+                        <span class="link-label">Năm ${yr}</span>
+                        <span class="link-icon">↗</span>
+                      </a>
+                    </td>
+                  `;
+                } else {
+                  return `
+                    <td class="td-link text-center">
+                      <span class="tbl-no-link" title="Chưa cập nhật link cho năm ${yr}">—</span>
+                    </td>
+                  `;
+                }
+              }).join('')}
+              <td class="td-notes">
+                ${rep.notes ? `
+                  <div class="report-note-bubble">
+                    <span class="note-pin">📌</span>
+                    <span>${escapeHtml(rep.notes)}</span>
+                  </div>
+                ` : `<span class="tbl-no-link">—</span>`}
+              </td>
+              ${isAdmin ? `
+                <td class="td-actions text-center">
+                  <div class="table-actions-cluster">
+                    <button type="button" class="btn-action-edit" onclick="onAdminEditReportClick('${rep.id}')" title="Sửa báo cáo (Cần xác nhận)">
+                      ✏️ Sửa
+                    </button>
+                    <button type="button" class="btn-action-del" onclick="onAdminDeleteReportClick('${rep.id}')" title="Xóa báo cáo (Cần xác nhận)">
+                      🗑️ Xóa
+                    </button>
+                  </div>
+                </td>
+              ` : ''}
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    `;
+  }
+
+  table.innerHTML = theadHtml + tbodyHtml;
+}
+
+/**
+ * THÊM MỚI BÁO CÁO (CHỈ ADMIN ĐƯỢC PHÉP DÙNG)
+ */
+window.openAddReportModal = function() {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền sử dụng chức năng Thêm mới báo cáo.');
+    return;
+  }
+
+  const modal = document.getElementById('reportModal');
+  const titleEl = document.getElementById('reportModalTitle');
+  const editIdInput = document.getElementById('reportEditId');
+  const contentInput = document.getElementById('reportContentInput');
+  const respInput = document.getElementById('reportResponsibleInput');
+  const notesInput = document.getElementById('reportNotesInput');
+
+  if (!modal) return;
+
+  if (titleEl) titleEl.textContent = '➕ Thêm Mới Báo Cáo Khoa Vi Sinh';
+  if (editIdInput) editIdInput.value = '';
+  if (contentInput) contentInput.value = '';
+  if (respInput) respInput.value = '';
+  if (notesInput) {
+    notesInput.value = '';
+    notesInput.removeAttribute('disabled');
+  }
+
+  populateQuickResponsibleDropdown();
+  renderReportModalYearInputs({});
+
+  modal.style.display = 'flex';
+};
+
+/**
+ * SỬA BÁO CÁO (CHỈ ADMIN + HỎI XÁC NHẬN TRƯỚC KHI SỬA)
+ */
+window.onAdminEditReportClick = function(reportId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền Sửa nội dung báo cáo.');
+    return;
+  }
+
+  const report = AppState.departmentReports.find(r => r.id === reportId);
+  if (!report) return;
+
+  const isConfirmed = confirm(`XÁC NHẬN CHỈNH SỬA BÁO CÁO:\n\nBạn có chắc chắn muốn chỉnh sửa báo cáo:\n"${report.content}" không?`);
+  if (!isConfirmed) return;
+
+  openEditReportModal(report);
+};
+
+window.openEditReportModal = function(report) {
+  const modal = document.getElementById('reportModal');
+  const titleEl = document.getElementById('reportModalTitle');
+  const editIdInput = document.getElementById('reportEditId');
+  const contentInput = document.getElementById('reportContentInput');
+  const respInput = document.getElementById('reportResponsibleInput');
+  const notesInput = document.getElementById('reportNotesInput');
+
+  if (!modal) return;
+
+  if (titleEl) titleEl.textContent = '✏️ Chỉnh Sửa Báo Cáo Khoa Vi Sinh';
+  if (editIdInput) editIdInput.value = report.id;
+  if (contentInput) contentInput.value = report.content || '';
+  if (respInput) respInput.value = report.responsible || '';
+  if (notesInput) {
+    notesInput.value = report.notes || '';
+    notesInput.removeAttribute('disabled');
+  }
+
+  populateQuickResponsibleDropdown();
+  renderReportModalYearInputs(report.links || {});
+
+  modal.style.display = 'flex';
+};
+
+/**
+ * XÓA BÁO CÁO (CHỈ ADMIN + HỎI XÁC NHẬN TRƯỚC KHI XÓA)
+ */
+window.onAdminDeleteReportClick = function(reportId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền Xóa nội dung báo cáo.');
+    return;
+  }
+
+  const report = AppState.departmentReports.find(r => r.id === reportId);
+  if (!report) return;
+
+  const isConfirmed = confirm(`⚠️ CẢNH BÁO QUẢN TRỊ VIÊN:\n\nBạn có chắc chắn muốn XÓA VĨNH VIỄN báo cáo:\n"${report.content}" không?\n\nThao tác này không thể hoàn tác!`);
+  if (!isConfirmed) return;
+
+  AppState.departmentReports = AppState.departmentReports.filter(r => r.id !== reportId);
+  saveDepartmentReportsToStorage();
+  renderDepartmentReportsTable();
+  alert(`✓ Đã xóa thành công báo cáo: "${report.content}"`);
+};
+
+window.closeReportModal = function() {
+  const modal = document.getElementById('reportModal');
+  if (modal) modal.style.display = 'none';
+};
+
+/**
+ * XỬ LÝ LƯU BÁO CÁO (THÊM MỚI HOẶC CẬP NHẬT)
+ */
+window.handleReportFormSubmit = function(event) {
+  event.preventDefault();
+
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền lưu báo cáo!');
+    return;
+  }
+
+  const editId = document.getElementById('reportEditId').value.trim();
+  const content = document.getElementById('reportContentInput').value.trim();
+  const responsible = document.getElementById('reportResponsibleInput').value.trim();
+  const notes = document.getElementById('reportNotesInput').value.trim();
+
+  if (!content) {
+    alert('Vui lòng nhập nội dung báo cáo!');
+    return;
+  }
+
+  // Thu thập các link theo từng năm
+  const links = {};
+  AppState.reportYears.forEach(yr => {
+    const input = document.getElementById(`modalReportLink_${yr}`);
+    if (input) {
+      links[yr] = input.value.trim();
+    }
+  });
+
+  if (editId) {
+    // Cập nhật báo cáo đã có
+    const index = AppState.departmentReports.findIndex(r => r.id === editId);
+    if (index !== -1) {
+      AppState.departmentReports[index] = {
+        ...AppState.departmentReports[index],
+        content,
+        responsible: responsible || 'Chưa cập nhật',
+        links,
+        notes // Cột lưu ý chỉ Admin mới có quyền cập nhật
+      };
+      alert('✓ Đã cập nhật thành công nội dung báo cáo!');
+    }
+  } else {
+    // Thêm mới báo cáo
+    const newReport = {
+      id: 'rep_' + Date.now(),
+      content,
+      responsible: responsible || (AppState.currentUser ? AppState.currentUser.name : 'BS.CKII. Đào Quang Trung'),
+      links,
+      notes // Cột lưu ý chỉ Admin mới có quyền thêm nội dung
+    };
+    AppState.departmentReports.push(newReport);
+    alert('✓ Đã thêm mới thành công báo cáo vào hệ thống!');
+  }
+
+  saveDepartmentReportsToStorage();
+  closeReportModal();
+  renderDepartmentReportsTable();
+};
+
+/**
+ * Render các ô input link năm trong modal
+ */
+function renderReportModalYearInputs(currentLinks) {
+  const container = document.getElementById('reportYearInputsContainer');
+  if (!container) return;
+
+  container.innerHTML = AppState.reportYears.map(yr => {
+    const val = currentLinks[yr] || '';
+    return `
+      <div class="modal-year-link-field">
+        <label for="modalReportLink_${yr}" class="modal-year-label">
+          <span>📅 Đường link Năm ${yr}:</span>
+        </label>
+        <input type="url" 
+               id="modalReportLink_${yr}" 
+               class="auth-input-field modal-year-input" 
+               placeholder="Dán URL báo cáo năm ${yr} (https://...)" 
+               value="${escapeHtml(val)}">
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Gợi ý danh sách 12 cán bộ nhân viên để chọn nhanh người phụ trách
+ */
+function populateQuickResponsibleDropdown() {
+  const select = document.getElementById('quickResponsibleSelect');
+  if (!select) return;
+  if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
+
+  select.innerHTML = `
+    <option value="">-- ⚡ Hoặc chọn nhanh cán bộ --</option>
+    ${window.STAFF_AUTH_CONFIG.staffList.map(s => `
+      <option value="${escapeHtml(s.title + ' ' + s.name)}">${escapeHtml(s.title)} ${escapeHtml(s.name)} (${escapeHtml(s.roleText)})</option>
+    `).join('')}
+  `;
+}
+
+window.onSelectQuickResponsible = function(name) {
+  const input = document.getElementById('reportResponsibleInput');
+  if (input && name) {
+    input.value = name;
+  }
+};
+
+/**
+ * THÊM CỘT NĂM MỚI VÀO BẢNG BÁO CÁO (CHỈ ADMIN ĐƯỢC PHÉP DÙNG)
+ */
+window.promptAddNewReportYear = function() {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền thêm năm vào bảng báo cáo!');
+    return;
+  }
+
+  const currentMaxYear = AppState.reportYears.reduce((max, y) => Math.max(max, parseInt(y, 10) || 0), 2026);
+  const suggestedYear = (currentMaxYear + 1).toString();
+
+  const inputYear = prompt(`Nhập năm mới cần bổ sung vào bảng báo cáo (Ví dụ: ${suggestedYear}):`, suggestedYear);
+  if (!inputYear) return;
+
+  const cleanYear = inputYear.trim();
+  if (!/^\d{4}$/.test(cleanYear)) {
+    alert('⚠️ Năm không hợp lệ! Vui lòng nhập năm gồm 4 chữ số (Ví dụ: 2027).');
+    return;
+  }
+  if (AppState.reportYears.includes(cleanYear)) {
+    alert(`⚠️ Năm ${cleanYear} đã tồn tại trong bảng báo cáo!`);
+    return;
+  }
+
+  AppState.reportYears.push(cleanYear);
+  AppState.reportYears.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+  saveDepartmentReportsToStorage();
+
+  // Nếu modal đang mở thì cập nhật lại input năm trong modal
+  const modal = document.getElementById('reportModal');
+  if (modal && modal.style.display !== 'none') {
+    const editId = document.getElementById('reportEditId').value.trim();
+    const currentRep = editId ? AppState.departmentReports.find(r => r.id === editId) : null;
+    renderReportModalYearInputs(currentRep ? (currentRep.links || {}) : {});
+  }
+
+  renderDepartmentReportsTable();
+  alert(`✓ Đã bổ sung thành công cột "Năm ${cleanYear}" vào Bảng Tổng hợp Báo cáo!`);
+};
+
+/**
+ * TÌM KIẾM BÁO CÁO
+ */
+window.onReportSearchInput = function(val) {
+  AppState.reportSearchQuery = (val || '').trim();
+  const clearBtn = document.getElementById('btnClearReportSearch');
+  if (clearBtn) {
+    clearBtn.style.display = AppState.reportSearchQuery ? 'flex' : 'none';
+  }
+  renderDepartmentReportsTable();
+};
+
+window.clearReportSearch = function() {
+  const input = document.getElementById('reportSearchInput');
+  const clearBtn = document.getElementById('btnClearReportSearch');
+  if (input) input.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  AppState.reportSearchQuery = '';
+  renderDepartmentReportsTable();
+};

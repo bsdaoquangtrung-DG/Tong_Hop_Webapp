@@ -2942,3 +2942,687 @@ body.sky-blue-theme {
     max-width: 100px;
   }
 }
+
+/* ==========================================================================
+   MỤC MỚI: 1. BÁO CÁO KHOA VI SINH – BẢNG TỔNG HỢP LINK BÁO CÁO THEO NĂM
+   ========================================================================== */
+
+.dept-reports-section {
+  padding: 1.25rem 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.reports-container-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid rgba(2, 132, 199, 0.18);
+  box-shadow: 0 10px 30px rgba(2, 132, 199, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Bảng Báo Cáo */
+.reports-header-box {
+  background: linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%);
+  border-bottom: 1px solid rgba(2, 132, 199, 0.14);
+  padding: 1.5rem 1.75rem 1.25rem;
+}
+
+.reports-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.reports-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reports-badge-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+  flex-shrink: 0;
+}
+
+.reports-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0369A1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+}
+
+.reports-subtitle {
+  font-size: 0.88rem;
+  color: #64748B;
+  margin: 0;
+}
+
+.reports-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.btn-report-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #334155;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-report-back:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+  color: #0F172A;
+  transform: translateY(-1px);
+}
+
+.btn-report-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  color: #FFFFFF;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-report-primary:hover {
+  background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-report-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.05rem;
+  border-radius: 10px;
+  border: 1px solid #BAE6FD;
+  background: #E0F2FE;
+  color: #0369A1;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-report-secondary:hover {
+  background: #BAE6FD;
+  color: #0284C7;
+  transform: translateY(-1px);
+}
+
+/* Sub-bar: Tìm kiếm & Phân quyền */
+.reports-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.reports-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 480px;
+  min-width: 260px;
+}
+
+.reports-search-wrap svg {
+  position: absolute;
+  left: 0.85rem;
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.report-search-field {
+  width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 2.5rem;
+  border-radius: 10px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  font-size: 0.86rem;
+  color: #0F172A;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.report-search-field:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.btn-clear-report-search {
+  position: absolute;
+  right: 0.65rem;
+  border: none;
+  background: #E2E8F0;
+  color: #64748B;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.reports-role-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+}
+
+.admin-badge {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.staff-badge {
+  background: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+/* Bảng Responsive */
+.reports-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #FFFFFF;
+}
+
+.reports-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.reports-table th,
+.reports-table td {
+  border-right: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.reports-table th:last-child,
+.reports-table td:last-child {
+  border-right: none;
+}
+
+/* Table Headers */
+.header-main-row th {
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.85rem 0.95rem;
+  vertical-align: middle;
+  border-color: rgba(255, 255, 255, 0.16);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.header-years-row th {
+  background: #075985;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.55rem 0.75rem;
+  text-align: center;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.th-stt {
+  width: 60px;
+  text-align: center;
+}
+
+.th-content {
+  min-width: 280px;
+}
+
+.th-responsible {
+  width: 180px;
+}
+
+.th-links-group {
+  text-align: center;
+}
+
+.links-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.btn-th-add-year {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: none;
+}
+
+.btn-th-add-year:hover {
+  background: #FFFFFF;
+  color: #0369A1;
+}
+
+.th-year {
+  min-width: 105px;
+}
+
+.th-notes {
+  min-width: 220px;
+}
+
+.th-note-tag {
+  display: inline-block;
+  background: #F59E0B;
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.35rem;
+  text-transform: uppercase;
+}
+
+.th-actions {
+  width: 140px;
+  text-align: center;
+}
+
+/* Table Body Cells */
+.reports-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.reports-table tbody tr:nth-child(even) {
+  background-color: #F8FAFC;
+}
+
+.reports-table tbody tr:hover {
+  background-color: #F0F9FF;
+}
+
+.reports-table td {
+  padding: 0.85rem 0.95rem;
+  vertical-align: middle;
+  font-size: 0.88rem;
+  color: #1E293B;
+}
+
+.td-stt {
+  text-align: center;
+  font-weight: 700;
+  color: #0369A1;
+}
+
+.report-content-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.report-doc-icon {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.report-content-title {
+  font-weight: 600;
+  color: #0F172A;
+  line-height: 1.4;
+}
+
+.resp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.resp-avatar-icon {
+  font-size: 0.85rem;
+}
+
+/* Nút Link Báo Cáo Trong Bảng */
+.tbl-report-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  background: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  color: #0369A1;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tbl-report-link:hover {
+  background: #0284C7;
+  border-color: #0284C7;
+  color: #FFFFFF;
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.25);
+  transform: translateY(-1px);
+}
+
+.tbl-report-link .link-icon {
+  font-size: 0.85rem;
+}
+
+.tbl-no-link {
+  color: #94A3B8;
+  font-weight: 600;
+}
+
+/* Cột Lưu Ý */
+.report-note-bubble {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.report-note-bubble .note-pin {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Cột Thao Tác (Admin) */
+.table-actions-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.btn-action-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #FCD34D;
+  background: #FEF3C7;
+  color: #B45309;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-action-edit:hover {
+  background: #FDE68A;
+  color: #92400E;
+  transform: translateY(-1px);
+}
+
+.btn-action-del {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #FCA5A5;
+  background: #FEE2E2;
+  color: #B91C1C;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-action-del:hover {
+  background: #FECDD3;
+  color: #991B1B;
+  transform: translateY(-1px);
+}
+
+/* Empty Table State */
+.empty-table-cell {
+  padding: 3rem 1.5rem !important;
+  text-align: center;
+}
+
+.empty-table-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.empty-table-icon {
+  font-size: 2.5rem;
+}
+
+.empty-table-state p {
+  color: #64748B;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Chân bảng báo cáo */
+.reports-footer-notes {
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+  padding: 1.15rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.reports-note-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+
+.reports-note-item .note-bullet {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Form Thêm Mới / Sửa Báo Cáo Modal */
+.resp-input-combo {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.resp-input-combo input {
+  flex: 1.2;
+}
+
+.select-responsible-dropdown {
+  flex: 1;
+  background-color: #F8FAFC;
+  cursor: pointer;
+}
+
+.report-links-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.report-links-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.links-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #0F172A;
+  font-size: 0.88rem;
+}
+
+.btn-sub-add-year {
+  background: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  color: #0369A1;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sub-add-year:hover {
+  background: #0284C7;
+  color: #FFFFFF;
+}
+
+.report-years-input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.85rem;
+}
+
+.modal-year-link-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.modal-year-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.modal-year-input {
+  font-size: 0.84rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.report-textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* Mobile Responsive Bảng Báo Cáo */
+@media (max-width: 768px) {
+  .dept-reports-section {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .reports-header-box {
+    padding: 1.15rem 1rem;
+  }
+
+  .reports-title {
+    font-size: 1.22rem;
+  }
+
+  .reports-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .reports-actions-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .reports-subbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reports-search-wrap {
+    max-width: 100%;
+  }
+
+  .resp-input-combo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-years-input-grid {
+    grid-template-columns: 1fr;
+  }
+}
