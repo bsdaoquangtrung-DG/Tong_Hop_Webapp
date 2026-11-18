@@ -1291,28 +1291,9 @@ function renderDepartmentReportsTable() {
   const btnAddReport = document.getElementById('btnAdminAddReport');
   const btnAddYear = document.getElementById('btnAdminAddYear');
   const btnDeleteYear = document.getElementById('btnAdminDeleteYear');
-  const roleIndicator = document.getElementById('reportsRoleIndicator');
-
   if (btnAddReport) btnAddReport.style.display = isAdmin ? 'inline-flex' : 'none';
   if (btnAddYear) btnAddYear.style.display = isAdmin ? 'inline-flex' : 'none';
   if (btnDeleteYear) btnDeleteYear.style.display = isAdmin ? 'inline-flex' : 'none';
-
-  if (roleIndicator) {
-    if (isAdmin) {
-      roleIndicator.innerHTML = `
-        <span class="role-badge admin-badge">
-          🛡️ Quyền Admin: BS.CKII. Đào Quang Trung (Toàn quyền Thêm mới, Sửa, Xóa, Đổi vị trí hàng & Nhập cột Lưu ý)
-        </span>
-      `;
-    } else {
-      const staffName = AppState.currentUser ? AppState.currentUser.name : 'Cán bộ nhân viên';
-      roleIndicator.innerHTML = `
-        <span class="role-badge staff-badge">
-          👁️ Chế độ xem: ${escapeHtml(staffName)} (Tra cứu & Mở các link báo cáo chuyên ngành)
-        </span>
-      `;
-    }
-  }
 
   // 2. Lọc dữ liệu theo tìm kiếm
   const filtered = AppState.departmentReports.filter(rep => {
