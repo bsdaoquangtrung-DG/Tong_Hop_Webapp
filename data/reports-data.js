@@ -27,6 +27,7 @@ const REPORTS_CONFIG = {
         "2025": "https://docs.google.com/document/d/1Bvdkg_BaoCaoChuyenMon_2025/edit",
         "2026": "https://docs.google.com/document/d/1Bvdkg_BaoCaoChuyenMon_2026/edit"
       },
+      permission: "user",
       notes: "Nộp định kỳ tháng và báo cáo tổng kết quý cho Ban Giám đốc Bệnh viện."
     },
     {
@@ -38,6 +39,7 @@ const REPORTS_CONFIG = {
         "2025": "https://baobaokhangthuoc.vercel.app/",
         "2026": "https://baobaokhangthuoc.vercel.app/"
       },
+      permission: "user",
       notes: "Phối hợp Hội đồng Thuốc & Điều trị và Khoa Kiểm soát nhiễm khuẩn báo cáo định kỳ."
     },
     {
@@ -49,6 +51,7 @@ const REPORTS_CONFIG = {
         "2025": "https://qlquytrinhvisinh.vercel.app/",
         "2026": ""
       },
+      permission: "user",
       notes: "Đánh giá nội bộ 6 tháng/lần và thẩm tra phương pháp xét nghiệm định kỳ."
     },
     {
@@ -60,6 +63,7 @@ const REPORTS_CONFIG = {
         "2025": "https://script.google.com/macros/s/AKfycbxmC9bTeQwVKVPaplv-SJF5Tak92BlN28f5hwo2h6PRD8YdWtVGRJu7qJxTkUI5drb4/exec",
         "2026": ""
       },
+      permission: "user",
       notes: "Kiểm kê định kỳ ngày 25 hàng tháng, cảnh báo hạn dùng trước 60 ngày."
     },
     {
@@ -71,6 +75,7 @@ const REPORTS_CONFIG = {
         "2025": "https://script.google.com/macros/s/AKfycbwu00vxwcBssQ_acK4YWiee91PcW6HRa2g8hECtm4Zk6-BXknWnJ1Rq1r9p0FeU_gRJ/exec",
         "2026": ""
       },
+      permission: "user",
       notes: "Đảm bảo 100% cán bộ hoàn thành định mức giờ đào tạo theo quy định BYT."
     },
     {
@@ -82,6 +87,7 @@ const REPORTS_CONFIG = {
         "2025": "https://docs.google.com/spreadsheets/d/1Bvdkg_KSNK_2025/edit",
         "2026": ""
       },
+      permission: "user",
       notes: "Xét nghiệm vi sinh không khí phòng mổ, bàn tay phẫu thuật viên và nguồn nước."
     },
     {
@@ -93,6 +99,7 @@ const REPORTS_CONFIG = {
         "2025": "https://script.google.com/macros/s/AKfycby_NXX-10ouqeahRgtEvb-G9CeS71Dt0VT0JDIxWw24Q8NF55325zPRTE1J8TES1Ek/exec",
         "2026": ""
       },
+      permission: "user",
       notes: "Ghi nhận đầy đủ biên bản họp giao ban và phân tích nguyên nhân gốc (RCA)."
     }
   ],
@@ -103,30 +110,35 @@ const REPORTS_CONFIG = {
       id: "other_link_1",
       content: "Cổng thông tin điện tử Bệnh viện Đa khoa Đức Giang",
       url: "https://benhvienducgiang.org.vn/",
+      permission: "user",
       notes: "Trang thông tin chính thức của Bệnh viện Đa khoa Đức Giang."
     },
     {
       id: "other_link_2",
       content: "Cổng thông tin Bộ Y tế Việt Nam (MOH)",
       url: "https://moh.gov.vn/",
+      permission: "user",
       notes: "Tra cứu các văn bản quy phạm pháp luật, thông tư và hướng dẫn chuyên môn BYT."
     },
     {
       id: "other_link_3",
       content: "Thư viện Dược thư Quốc gia Việt Nam",
       url: "https://duocthuquocgia.vn/",
+      permission: "user",
       notes: "Tra cứu danh mục thuốc, liều dùng, tương tác thuốc và kháng sinh điều trị."
     },
     {
       id: "other_link_4",
       content: "Hệ thống tiêu chuẩn quốc tế CLSI (Clinical and Laboratory Standards Institute)",
       url: "https://clsi.org/",
+      permission: "user",
       notes: "Tiêu chuẩn phiên giải kết quả kháng sinh đồ vi sinh lâm sàng mới nhất."
     },
     {
       id: "other_link_5",
       content: "Hội Vi sinh lâm sàng & Kiểm soát nhiễm khuẩn Việt Nam",
       url: "https://vnacc.org.vn/",
+      permission: "user",
       notes: "Tài liệu đào tạo, sinh hoạt khoa học và khuyến cáo chuyên ngành vi sinh."
     }
   ]

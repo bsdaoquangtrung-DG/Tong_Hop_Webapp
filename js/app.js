@@ -1451,8 +1451,11 @@ function renderDepartmentReportsTable() {
   if (btnAddYear) btnAddYear.style.display = isAdmin ? 'inline-flex' : 'none';
   if (btnDeleteYear) btnDeleteYear.style.display = isAdmin ? 'inline-flex' : 'none';
 
-  // 2. Lọc dữ liệu theo tìm kiếm
+  // 2. Lọc dữ liệu theo phân quyền và tìm kiếm
   const filtered = AppState.departmentReports.filter(rep => {
+    const itemPerm = rep.permission || 'user';
+    if (!isAdmin && itemPerm === 'admin') return false;
+
     if (!query) return true;
     const matchContent = (rep.content || '').toLowerCase().includes(query);
     const matchResp = (rep.responsible || '').toLowerCase().includes(query);
@@ -1525,6 +1528,10 @@ function renderDepartmentReportsTable() {
         ${filtered.map((rep, idx) => {
           const isFirst = (idx === 0);
           const isLast = (idx === filtered.length - 1);
+          const itemPerm = rep.permission || 'user';
+          const permBadge = isAdmin ? (itemPerm === 'admin' 
+            ? '<span class="badge-role-admin" title="Phân quyền: Chỉ Admin mới xem được">🔒 Chỉ Admin</span>' 
+            : '<span class="badge-role-user" title="Phân quyền: Cả Admin và User đều xem được">👥 User</span>') : '';
 
           return `
             <tr class="report-row" id="report-row-${rep.id}">
@@ -1533,6 +1540,7 @@ function renderDepartmentReportsTable() {
                 <div class="report-content-box">
                   <span class="report-doc-icon">📑</span>
                   <span class="report-content-title">${escapeHtml(rep.content)}</span>
+                  ${permBadge}
                 </div>
               </td>
               <td class="td-responsible">
@@ -1621,6 +1629,7 @@ window.openAddReportModal = function() {
   const editIdInput = document.getElementById('reportEditId');
   const contentInput = document.getElementById('reportContentInput');
   const respInput = document.getElementById('reportResponsibleInput');
+  const permSelect = document.getElementById('reportPermissionSelect');
   const notesInput = document.getElementById('reportNotesInput');
 
   if (!modal) return;
@@ -1629,6 +1638,7 @@ window.openAddReportModal = function() {
   if (editIdInput) editIdInput.value = '';
   if (contentInput) contentInput.value = '';
   if (respInput) respInput.value = '';
+  if (permSelect) permSelect.value = 'user';
   if (notesInput) {
     notesInput.value = '';
     notesInput.removeAttribute('disabled');
@@ -1664,6 +1674,7 @@ window.openEditReportModal = function(report) {
   const editIdInput = document.getElementById('reportEditId');
   const contentInput = document.getElementById('reportContentInput');
   const respInput = document.getElementById('reportResponsibleInput');
+  const permSelect = document.getElementById('reportPermissionSelect');
   const notesInput = document.getElementById('reportNotesInput');
 
   if (!modal) return;
@@ -1672,6 +1683,7 @@ window.openEditReportModal = function(report) {
   if (editIdInput) editIdInput.value = report.id;
   if (contentInput) contentInput.value = report.content || '';
   if (respInput) respInput.value = report.responsible || '';
+  if (permSelect) permSelect.value = report.permission || 'user';
   if (notesInput) {
     notesInput.value = report.notes || '';
     notesInput.removeAttribute('disabled');
@@ -1723,6 +1735,8 @@ window.handleReportFormSubmit = function(event) {
   const editId = document.getElementById('reportEditId').value.trim();
   const content = document.getElementById('reportContentInput').value.trim();
   const responsible = document.getElementById('reportResponsibleInput').value.trim();
+  const permSelect = document.getElementById('reportPermissionSelect');
+  const permission = permSelect ? permSelect.value : 'user';
   const notes = document.getElementById('reportNotesInput').value.trim();
 
   if (!content) {
@@ -1748,6 +1762,7 @@ window.handleReportFormSubmit = function(event) {
         content,
         responsible: responsible || 'Chưa cập nhật',
         links,
+        permission,
         notes // Cột lưu ý chỉ Admin mới có quyền cập nhật
       };
       alert('✓ Đã cập nhật thành công nội dung báo cáo!');
@@ -1759,6 +1774,7 @@ window.handleReportFormSubmit = function(event) {
       content,
       responsible: responsible || (AppState.currentUser ? AppState.currentUser.name : 'BS.CKII. Đào Quang Trung'),
       links,
+      permission,
       notes // Cột lưu ý chỉ Admin mới có quyền thêm nội dung
     };
     AppState.departmentReports.push(newReport);
@@ -2054,8 +2070,11 @@ function renderOtherLinksTable() {
     btnAdd.style.display = isAdmin ? 'inline-flex' : 'none';
   }
 
-  // 2. Lọc dữ liệu theo ô tìm kiếm
+  // 2. Lọc dữ liệu theo phân quyền và ô tìm kiếm
   const filtered = AppState.otherLinks.filter(item => {
+    const itemPerm = item.permission || 'user';
+    if (!isAdmin && itemPerm === 'admin') return false;
+
     if (!query) return true;
     const matchContent = (item.content || '').toLowerCase().includes(query);
     const matchNotes = (item.notes || '').toLowerCase().includes(query);
@@ -2108,6 +2127,10 @@ function renderOtherLinksTable() {
           const isFirst = (idx === 0);
           const isLast = (idx === filtered.length - 1);
           const link = (item.url || '').trim();
+          const itemPerm = item.permission || 'user';
+          const permBadge = isAdmin ? (itemPerm === 'admin' 
+            ? '<span class="badge-role-admin" title="Phân quyền: Chỉ Admin mới xem được">🔒 Chỉ Admin</span>' 
+            : '<span class="badge-role-user" title="Phân quyền: Cả Admin và User đều xem được">👥 User</span>') : '';
 
           return `
             <tr class="report-row" id="other-link-row-${item.id}">
@@ -2116,6 +2139,7 @@ function renderOtherLinksTable() {
                 <div class="report-content-box">
                   <span class="report-doc-icon">🌐</span>
                   <span class="report-content-title">${escapeHtml(item.content)}</span>
+                  ${permBadge}
                 </div>
               </td>
               <td class="td-link text-center">
@@ -2187,6 +2211,7 @@ window.openAddOtherLinkModal = function() {
   const editIdInput = document.getElementById('otherLinkEditId');
   const contentInput = document.getElementById('otherLinkContentInput');
   const urlInput = document.getElementById('otherLinkUrlInput');
+  const permSelect = document.getElementById('otherLinkPermissionSelect');
   const notesInput = document.getElementById('otherLinkNotesInput');
 
   if (!modal) return;
@@ -2195,6 +2220,7 @@ window.openAddOtherLinkModal = function() {
   if (editIdInput) editIdInput.value = '';
   if (contentInput) contentInput.value = '';
   if (urlInput) urlInput.value = '';
+  if (permSelect) permSelect.value = 'user';
   if (notesInput) {
     notesInput.value = '';
     notesInput.removeAttribute('disabled');
@@ -2227,6 +2253,7 @@ window.openEditOtherLinkModal = function(item) {
   const editIdInput = document.getElementById('otherLinkEditId');
   const contentInput = document.getElementById('otherLinkContentInput');
   const urlInput = document.getElementById('otherLinkUrlInput');
+  const permSelect = document.getElementById('otherLinkPermissionSelect');
   const notesInput = document.getElementById('otherLinkNotesInput');
 
   if (!modal) return;
@@ -2235,6 +2262,7 @@ window.openEditOtherLinkModal = function(item) {
   if (editIdInput) editIdInput.value = item.id;
   if (contentInput) contentInput.value = item.content || '';
   if (urlInput) urlInput.value = item.url || '';
+  if (permSelect) permSelect.value = item.permission || 'user';
   if (notesInput) {
     notesInput.value = item.notes || '';
     notesInput.removeAttribute('disabled');
@@ -2265,6 +2293,8 @@ window.handleOtherLinkFormSubmit = function(event) {
   const editId = document.getElementById('otherLinkEditId').value.trim();
   const content = document.getElementById('otherLinkContentInput').value.trim();
   const url = document.getElementById('otherLinkUrlInput').value.trim();
+  const permSelect = document.getElementById('otherLinkPermissionSelect');
+  const permission = permSelect ? permSelect.value : 'user';
   const notes = document.getElementById('otherLinkNotesInput').value.trim();
 
   if (!content) {
@@ -2284,6 +2314,7 @@ window.handleOtherLinkFormSubmit = function(event) {
         ...AppState.otherLinks[index],
         content,
         url,
+        permission,
         notes // Cột lưu ý chỉ Admin mới có quyền cập nhật
       };
       alert('✓ Đã cập nhật thành công thông tin liên kết!');
@@ -2294,6 +2325,7 @@ window.handleOtherLinkFormSubmit = function(event) {
       id: 'other_link_' + Date.now(),
       content,
       url,
+      permission,
       notes // Cột lưu ý chỉ Admin mới có quyền thêm nội dung
     };
     AppState.otherLinks.push(newLink);

@@ -4013,3 +4013,38 @@ body.sky-blue-theme {
   border-color: #CBD5E1;
 }
 
+/* BADGE PHÂN QUYỀN TRONG BẢNG BÁO CÁO & LIÊN KẾT KHÁC */
+.badge-role-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.12rem 0.5rem;
+  border-radius: 9999px;
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECDD3;
+  margin-left: 0.45rem;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.3;
+}
+
+.badge-role-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.12rem 0.5rem;
+  border-radius: 9999px;
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+  margin-left: 0.45rem;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.3;
+}
+

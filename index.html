@@ -762,6 +762,18 @@
             </div>
           </div>
 
+          <!-- Phân quyền xem: Admin hoặc User -->
+          <div class="auth-form-group">
+            <label for="reportPermissionSelect" class="auth-form-label">
+              <span>🛡️ Phân quyền: <strong class="text-danger">*</strong></span>
+              <span class="auth-input-hint">(Chọn Admin: chỉ Admin xem được; User: cả Admin và User đều xem được)</span>
+            </label>
+            <select id="reportPermissionSelect" class="auth-input-field auth-select" required>
+              <option value="user">👥 User (Cả Admin và User đều xem được)</option>
+              <option value="admin">🔒 Admin (Chỉ Admin mới xem được)</option>
+            </select>
+          </div>
+
           <!-- Cột 5: Lưu ý (Chỉ Admin mới có quyền thêm nội dung) -->
           <div class="auth-form-group">
             <label for="reportNotesInput" class="auth-form-label">
@@ -819,6 +831,18 @@
                    class="auth-input-field" 
                    placeholder="https://..." 
                    required>
+          </div>
+
+          <!-- Phân quyền xem: Admin hoặc User -->
+          <div class="auth-form-group">
+            <label for="otherLinkPermissionSelect" class="auth-form-label">
+              <span>🛡️ Phân quyền: <strong class="text-danger">*</strong></span>
+              <span class="auth-input-hint">(Chọn Admin: chỉ Admin xem được; User: cả Admin và User đều xem được)</span>
+            </label>
+            <select id="otherLinkPermissionSelect" class="auth-input-field auth-select" required>
+              <option value="user">👥 User (Cả Admin và User đều xem được)</option>
+              <option value="admin">🔒 Admin (Chỉ Admin mới xem được)</option>
+            </select>
           </div>
 
           <!-- Cột 4: Lưu ý (Chỉ Admin mới có quyền thêm nội dung) -->
