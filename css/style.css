@@ -3085,6 +3085,28 @@ body.sky-blue-theme {
   transform: translateY(-1px);
 }
 
+.btn-report-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.05rem;
+  border-radius: 10px;
+  border: 1px solid #FECDD3;
+  background: #FFF1F2;
+  color: #BE123C;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-report-danger:hover {
+  background: #FEE2E2;
+  color: #9F1239;
+  border-color: #FCA5A5;
+  transform: translateY(-1px);
+}
+
 /* Sub-bar: Tìm kiếm & Phân quyền */
 .reports-subbar {
   display: flex;
@@ -3243,6 +3265,12 @@ body.sky-blue-theme {
   gap: 0.65rem;
 }
 
+.links-header-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .btn-th-add-year {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -3261,8 +3289,56 @@ body.sky-blue-theme {
   color: #0369A1;
 }
 
+.btn-th-del-year {
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(254, 205, 211, 0.5);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: none;
+}
+
+.btn-th-del-year:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+}
+
 .th-year {
   min-width: 105px;
+}
+
+.th-year-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.btn-del-year-col {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.35);
+  color: #FEE2E2;
+  font-size: 0.68rem;
+  font-weight: 800;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.btn-del-year-col:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+  transform: scale(1.15);
 }
 
 .th-notes {
@@ -3282,7 +3358,8 @@ body.sky-blue-theme {
 }
 
 .th-actions {
-  width: 140px;
+  min-width: 200px;
+  width: 215px;
   text-align: center;
 }
 
@@ -3381,15 +3458,16 @@ body.sky-blue-theme {
   font-weight: 600;
 }
 
-/* Cột Lưu Ý */
+/* Cột Lưu Ý: Chữ màu đỏ, in nghiêng, kích thước nhỏ hơn */
 .report-note-bubble {
-  background: #FEF3C7;
-  border: 1px solid #FDE68A;
-  color: #92400E;
-  padding: 0.45rem 0.75rem;
+  background: #FFF1F2;
+  border: 1px solid #FECDD3;
+  color: #DC2626;
+  font-style: italic;
+  padding: 0.4rem 0.65rem;
   border-radius: 8px;
-  font-size: 0.82rem;
-  line-height: 1.4;
+  font-size: 0.76rem;
+  line-height: 1.45;
   display: flex;
   align-items: flex-start;
   gap: 0.4rem;
@@ -3398,6 +3476,7 @@ body.sky-blue-theme {
 .report-note-bubble .note-pin {
   flex-shrink: 0;
   margin-top: 1px;
+  font-style: normal;
 }
 
 /* Cột Thao Tác (Admin) */
@@ -3406,6 +3485,46 @@ body.sky-blue-theme {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
+}
+
+/* Cụm nút chuyển đưa lên / đưa xuống hàng */
+.table-reorder-group {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.btn-row-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 15px;
+  padding: 0;
+  border-radius: 3px;
+  border: 1px solid #CBD5E1;
+  background: #F1F5F9;
+  color: #0369A1;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-row-order:hover:not(.disabled):not(:disabled) {
+  background: #0284C7;
+  border-color: #0284C7;
+  color: #FFFFFF;
+}
+
+.btn-row-order.disabled,
+.btn-row-order:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: #F8FAFC;
+  color: #94A3B8;
+  border-color: #E2E8F0;
 }
 
 .btn-action-edit {

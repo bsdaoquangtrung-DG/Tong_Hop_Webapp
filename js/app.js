@@ -1290,16 +1290,18 @@ function renderDepartmentReportsTable() {
   // 1. Ẩn/Hiện các nút chức năng theo quyền
   const btnAddReport = document.getElementById('btnAdminAddReport');
   const btnAddYear = document.getElementById('btnAdminAddYear');
+  const btnDeleteYear = document.getElementById('btnAdminDeleteYear');
   const roleIndicator = document.getElementById('reportsRoleIndicator');
 
   if (btnAddReport) btnAddReport.style.display = isAdmin ? 'inline-flex' : 'none';
   if (btnAddYear) btnAddYear.style.display = isAdmin ? 'inline-flex' : 'none';
+  if (btnDeleteYear) btnDeleteYear.style.display = isAdmin ? 'inline-flex' : 'none';
 
   if (roleIndicator) {
     if (isAdmin) {
       roleIndicator.innerHTML = `
         <span class="role-badge admin-badge">
-          🛡️ Quyền Admin: BS.CKII. Đào Quang Trung (Toàn quyền Thêm mới, Sửa, Xóa & Nhập cột Lưu ý)
+          🛡️ Quyền Admin: BS.CKII. Đào Quang Trung (Toàn quyền Thêm mới, Sửa, Xóa, Đổi vị trí hàng & Nhập cột Lưu ý)
         </span>
       `;
     } else {
@@ -1331,17 +1333,34 @@ function renderDepartmentReportsTable() {
         <th class="th-links-group" colspan="${years.length}">
           <div class="links-group-header">
             <span>Đường Link Báo Cáo</span>
-            ${isAdmin ? `<button type="button" class="btn-th-add-year" onclick="promptAddNewReportYear()" title="Bổ sung thêm cột năm mới">+ Thêm năm</button>` : ''}
+            ${isAdmin ? `
+              <div class="links-header-btns">
+                <button type="button" class="btn-th-add-year" onclick="promptAddNewReportYear()" title="Bổ sung thêm cột năm mới">+ Thêm năm</button>
+                <button type="button" class="btn-th-del-year" onclick="promptDeleteReportYear()" title="Xóa bớt cột năm">- Xóa năm</button>
+              </div>
+            ` : ''}
           </div>
         </th>
         <th class="th-notes" rowspan="2">
           <span>Lưu ý</span>
           <span class="th-note-tag" title="Chỉ Admin mới có quyền thêm/sửa nội dung cột này">Admin</span>
         </th>
-        ${isAdmin ? `<th class="th-actions" rowspan="2">Thao tác</th>` : ''}
+        ${isAdmin ? `<th class="th-actions" rowspan="2">Thao tác & Vị trí</th>` : ''}
       </tr>
       <tr class="header-years-row">
-        ${years.map(yr => `<th class="th-year">Năm ${yr}</th>`).join('')}
+        ${years.map(yr => `
+          <th class="th-year">
+            <div class="th-year-inner">
+              <span>Năm ${yr}</span>
+              ${isAdmin ? `
+                <button type="button" 
+                        class="btn-del-year-col" 
+                        onclick="onAdminDeleteReportYear('${yr}')" 
+                        title="Xóa cột Năm ${yr} (Cần xác nhận)">✕</button>
+              ` : ''}
+            </div>
+          </th>
+        `).join('')}
       </tr>
     </thead>
   `;
@@ -1367,6 +1386,9 @@ function renderDepartmentReportsTable() {
     tbodyHtml = `
       <tbody>
         ${filtered.map((rep, idx) => {
+          const isFirst = (idx === 0);
+          const isLast = (idx === filtered.length - 1);
+
           return `
             <tr class="report-row" id="report-row-${rep.id}">
               <td class="td-stt text-center font-bold">${idx + 1}</td>
@@ -1412,6 +1434,23 @@ function renderDepartmentReportsTable() {
               ${isAdmin ? `
                 <td class="td-actions text-center">
                   <div class="table-actions-cluster">
+                    <!-- Cụm nút di chuyển hàng lên / xuống -->
+                    <div class="table-reorder-group" title="Admin: Chuyển vị trí hàng">
+                      <button type="button" 
+                              class="btn-row-order ${isFirst ? 'disabled' : ''}" 
+                              onclick="moveReportUp('${rep.id}')" 
+                              ${isFirst ? 'disabled' : ''} 
+                              title="${isFirst ? 'Đã ở vị trí đầu tiên' : 'Chuyển hàng lên trên'}">
+                        ▲
+                      </button>
+                      <button type="button" 
+                              class="btn-row-order ${isLast ? 'disabled' : ''}" 
+                              onclick="moveReportDown('${rep.id}')" 
+                              ${isLast ? 'disabled' : ''} 
+                              title="${isLast ? 'Đã ở vị trí cuối cùng' : 'Chuyển hàng xuống dưới'}">
+                        ▼
+                      </button>
+                    </div>
                     <button type="button" class="btn-action-edit" onclick="onAdminEditReportClick('${rep.id}')" title="Sửa báo cáo (Cần xác nhận)">
                       ✏️ Sửa
                     </button>
@@ -1700,5 +1739,118 @@ window.clearReportSearch = function() {
   if (input) input.value = '';
   if (clearBtn) clearBtn.style.display = 'none';
   AppState.reportSearchQuery = '';
+  renderDepartmentReportsTable();
+};
+
+/**
+ * XÓA CỘT NĂM TRONG BẢNG BÁO CÁO (CHỈ ADMIN + HỎI XÁC NHẬN)
+ */
+window.onAdminDeleteReportYear = function(year) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền xóa năm trong bảng báo cáo.');
+    return;
+  }
+
+  if (!AppState.reportYears.includes(year)) {
+    alert(`⚠️ Năm ${year} không tồn tại trong danh sách!`);
+    return;
+  }
+
+  if (AppState.reportYears.length <= 1) {
+    alert('⚠️ Không thể xóa! Bảng báo cáo phải có tối thiểu 1 cột năm.');
+    return;
+  }
+
+  const isConfirmed = confirm(`⚠️ CẢNH BÁO QUẢN TRỊ VIÊN:\n\nBạn có chắc chắn muốn XÓA CỘT "Năm ${year}" khỏi Bảng Báo Cáo?\n\nToàn bộ đường link liên kết của năm ${year} trong các báo cáo sẽ bị gỡ bỏ! Thao tác này không thể hoàn tác.`);
+  if (!isConfirmed) return;
+
+  // Xóa năm khỏi mảng năm
+  AppState.reportYears = AppState.reportYears.filter(y => y !== year);
+
+  // Xóa link của năm này trong từng báo cáo
+  AppState.departmentReports.forEach(rep => {
+    if (rep.links && rep.links[year] !== undefined) {
+      delete rep.links[year];
+    }
+  });
+
+  saveDepartmentReportsToStorage();
+
+  // Cập nhật lại modal nếu đang mở
+  const modal = document.getElementById('reportModal');
+  if (modal && modal.style.display !== 'none') {
+    const editId = document.getElementById('reportEditId').value.trim();
+    const currentRep = editId ? AppState.departmentReports.find(r => r.id === editId) : null;
+    renderReportModalYearInputs(currentRep ? (currentRep.links || {}) : {});
+  }
+
+  renderDepartmentReportsTable();
+  alert(`✓ Đã xóa thành công cột "Năm ${year}" khỏi Bảng Báo Cáo!`);
+};
+
+window.promptDeleteReportYear = function() {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền xóa năm.');
+    return;
+  }
+
+  if (AppState.reportYears.length <= 1) {
+    alert('⚠️ Không thể xóa! Bảng báo cáo phải có ít nhất 1 cột năm.');
+    return;
+  }
+
+  const yearsList = AppState.reportYears.join(', ');
+  const defaultSelected = AppState.reportYears[AppState.reportYears.length - 1];
+  const inputYear = prompt(`Nhập năm cần xóa khỏi bảng báo cáo (${yearsList}):`, defaultSelected);
+  if (!inputYear) return;
+
+  const cleanYear = inputYear.trim();
+  if (!AppState.reportYears.includes(cleanYear)) {
+    alert(`⚠️ Năm "${cleanYear}" không tồn tại trong bảng báo cáo! Các năm hiện có: ${yearsList}`);
+    return;
+  }
+
+  window.onAdminDeleteReportYear(cleanYear);
+};
+
+/**
+ * THAY ĐỔI VỊ TRÍ HÀNG: CHUYỂN LÊN TRÊN (CHỈ ADMIN)
+ */
+window.moveReportUp = function(reportId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền sắp xếp thứ tự hàng.');
+    return;
+  }
+
+  const idx = AppState.departmentReports.findIndex(r => r.id === reportId);
+  if (idx <= 0) return; // Đã ở đầu danh sách
+
+  // Hoán đổi với phần tử phía trước
+  const temp = AppState.departmentReports[idx];
+  AppState.departmentReports[idx] = AppState.departmentReports[idx - 1];
+  AppState.departmentReports[idx - 1] = temp;
+
+  saveDepartmentReportsToStorage();
+  renderDepartmentReportsTable();
+};
+
+/**
+ * THAY ĐỔI VỊ TRÍ HÀNG: CHUYỂN XUỐNG DƯỚI (CHỈ ADMIN)
+ */
+window.moveReportDown = function(reportId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền sắp xếp thứ tự hàng.');
+    return;
+  }
+
+  const idx = AppState.departmentReports.findIndex(r => r.id === reportId);
+  if (idx === -1 || idx >= AppState.departmentReports.length - 1) return; // Đã ở cuối danh sách
+
+  // Hoán đổi với phần tử phía sau
+  const temp = AppState.departmentReports[idx];
+  AppState.departmentReports[idx] = AppState.departmentReports[idx + 1];
+  AppState.departmentReports[idx + 1] = temp;
+
+  saveDepartmentReportsToStorage();
   renderDepartmentReportsTable();
 };
