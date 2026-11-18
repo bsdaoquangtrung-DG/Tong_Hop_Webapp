@@ -58,12 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function initAuth() {
   populateQuickStaffSelect();
 
-  // Kiểm tra phiên đăng nhập đã lưu trong localStorage
+  // Kiểm tra phiên đăng nhập đã lưu trong localStorage (tài khoản cán bộ hoặc tài khoản khách)
   const savedSession = localStorage.getItem(AppState.authStorageKey);
   if (savedSession) {
     try {
       const user = JSON.parse(savedSession);
-      if (user && user.email) {
+      if (user && (user.email || user.isGuest)) {
         AppState.currentUser = user;
         hideAuthModal();
         updateAuthHeaderUI();
@@ -78,9 +78,51 @@ function initAuth() {
     }
   }
 
-  // Nếu chưa có phiên đăng nhập: Hiện Auth Modal bắt buộc
+  // Nếu chưa có phiên đăng nhập: Hiện Auth Modal
   showAuthModal();
 }
+
+/**
+ * Kiểm tra xem người dùng hiện tại có phải là Tài khoản khách hay không
+ */
+function isGuestUser() {
+  return Boolean(AppState.currentUser && AppState.currentUser.isGuest);
+}
+
+/**
+ * Hiển thị thông báo giới hạn quyền cho Tài khoản khách và chuyển về form Đăng nhập
+ */
+function notifyGuestRestricted(featureName = 'nội dung này') {
+  alert(`⚠️ THÔNG BÁO TÀI KHOẢN KHÁCH:\n\nTài khoản khách chỉ được xem giao diện và phần giới thiệu trang chủ chứ không thể truy cập vào xem ${featureName}.\n\nVui lòng đăng nhập bằng tài khoản Cán bộ nhân viên hoặc Admin để sử dụng đầy đủ các tính năng!`);
+  showAuthModal();
+}
+
+/**
+ * ĐĂNG NHẬP BẰNG TÀI KHOẢN KHÁCH (CHỈ XEM GIAO DIỆN & GIỚI THIỆU TRANG CHỦ)
+ */
+window.loginAsGuest = function() {
+  const guestUser = {
+    id: 'guest',
+    name: 'Khách',
+    title: '',
+    roleText: 'Khách xem',
+    email: '',
+    isAdmin: false,
+    isGuest: true
+  };
+
+  AppState.currentUser = guestUser;
+  localStorage.setItem(AppState.authStorageKey, JSON.stringify(guestUser));
+
+  hideAuthModal();
+  updateAuthHeaderUI();
+  initData();
+  setupEventListeners();
+  renderAll();
+  initSupabase();
+
+  showToast('Đang xem dưới tư cách Tài khoản khách (Chỉ xem giao diện Trang chủ)');
+};
 
 function populateQuickStaffSelect() {
   const selectEl = document.getElementById('quickStaffSelect');
@@ -248,21 +290,74 @@ function updateAuthHeaderUI() {
   const userRoleBadge = document.getElementById('userRoleBadge');
   const userAvatarBadge = document.getElementById('userAvatarBadge');
   const btnOpenAdmin = document.getElementById('btnOpenAdmin');
+  const btnLogout = document.getElementById('btnLogout');
+  const guestBanner = document.getElementById('guestNoticeBanner');
 
   if (!AppState.currentUser) {
     if (userAuthProfile) userAuthProfile.style.display = 'none';
     if (btnOpenAdmin) btnOpenAdmin.style.display = 'none';
+    if (guestBanner) guestBanner.style.display = 'none';
     return;
   }
 
   const user = AppState.currentUser;
   if (userAuthProfile) userAuthProfile.style.display = 'flex';
 
-  if (userDisplayName) {
-    userDisplayName.textContent = `${user.title} ${user.name}`;
-    userDisplayName.title = `${user.title} ${user.name} (${user.email})`;
+  // 1. TRƯỜNG HỢP: TÀI KHOẢN KHÁCH (CHỈ XEM GIAO DIỆN TRANG CHỦ)
+  if (user.isGuest) {
+    if (userDisplayName) {
+      userDisplayName.textContent = 'Tài khoản khách';
+      userDisplayName.title = 'Tài khoản khách (Chỉ xem giao diện và giới thiệu trang chủ)';
+    }
+    if (userRoleBadge) {
+      userRoleBadge.textContent = '👁️ Khách xem';
+      userRoleBadge.className = 'user-role-badge role-guest';
+    }
+    if (userAvatarBadge) {
+      userAvatarBadge.textContent = '👤';
+      userAvatarBadge.className = 'user-avatar-badge guest-avatar';
+    }
+    if (btnOpenAdmin) {
+      btnOpenAdmin.style.display = 'none';
+    }
+    if (btnLogout) {
+      btnLogout.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        <span>Đăng nhập</span>
+      `;
+      btnLogout.title = 'Bấm để đăng nhập bằng tài khoản Cán bộ nhân viên hoặc Admin';
+    }
+    if (guestBanner) {
+      guestBanner.style.display = 'flex';
+    }
+    return;
   }
 
+  // Ẩn banner tài khoản khách khi đăng nhập tài khoản thực
+  if (guestBanner) guestBanner.style.display = 'none';
+
+  if (btnLogout) {
+    btnLogout.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span>Đăng xuất</span>
+    `;
+    btnLogout.title = 'Đăng xuất khỏi hệ thống';
+  }
+
+  if (userDisplayName) {
+    userDisplayName.textContent = `${user.title || ''} ${user.name}`.trim();
+    userDisplayName.title = `${user.title || ''} ${user.name} (${user.email || ''})`.trim();
+  }
+
+  // 2. TRƯỜNG HỢP: TÀI KHOẢN ADMIN (BS.CKII. ĐÀO QUANG TRUNG)
   if (user.isAdmin) {
     if (userRoleBadge) {
       userRoleBadge.textContent = '👑 Quản trị viên (Admin)';
@@ -277,6 +372,7 @@ function updateAuthHeaderUI() {
       btnOpenAdmin.style.display = 'flex';
     }
   } else {
+    // 3. TRƯỜNG HỢP: CÁN BỘ NHÂN VIÊN THƯỜNG
     if (userRoleBadge) {
       userRoleBadge.textContent = user.roleText;
       userRoleBadge.className = 'user-role-badge';
@@ -293,6 +389,13 @@ function updateAuthHeaderUI() {
 }
 
 window.logout = function() {
+  const isGuest = AppState.currentUser && AppState.currentUser.isGuest;
+  if (isGuest) {
+    // Nếu đang là khách, bấm Đăng nhập thì mở ngay form đăng nhập
+    showAuthModal();
+    return;
+  }
+
   if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng thông tin Vi sinh?')) {
     localStorage.removeItem(AppState.authStorageKey);
     AppState.currentUser = null;
@@ -417,7 +520,7 @@ function renderAll() {
 
 /**
  * 1. RENDER THANH CÔNG CỤ TRÁI (SIDEBAR)
- * Mục 1 ở ngay đầu tiên: "1. Báo cáo Khoa Vi sinh" (Tất cả tài khoản đều xem được)
+ * Mục đầu tiên: "Báo cáo khoa Vi sinh" (Nổi bật đặc biệt)
  * Tiếp theo là danh mục các Webapp chuyên ngành
  */
 function renderSidebarApps() {
@@ -435,21 +538,22 @@ function renderSidebarApps() {
 
   const sortedApps = [...AppState.apps].sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
 
-  // MỤC Ở NGAY ĐẦU TIÊN: "1. Báo cáo Khoa Vi sinh" (Tất cả tài khoản đều xem được)
+  // MỤC Ở NGAY ĐẦU TIÊN: "Báo cáo khoa Vi sinh" (Đổi tên và làm nổi bật theo yêu cầu)
   const isReportsActive = AppState.activeSidebarId === 'dept-reports';
   const reportItemHtml = `
     <button type="button" 
-            class="sidebar-app-btn ${isReportsActive ? 'active' : ''}" 
+            class="sidebar-app-btn sidebar-dept-reports-special ${isReportsActive ? 'active' : ''}" 
             id="sidebar-item-dept-reports"
             onclick="navigateToDepartmentReports(event)"
-            title="1. Báo cáo Khoa Vi sinh – Bảng tổng hợp liên kết link báo cáo theo năm">
-      <div class="sidebar-app-icon" aria-hidden="true">
+            title="Báo cáo khoa Vi sinh – Bảng tổng hợp liên kết link báo cáo theo năm & liên kết khác">
+      <div class="sidebar-app-icon sidebar-special-report-icon" aria-hidden="true">
         ${SVG_ICONS.FileText}
       </div>
       <div class="sidebar-app-meta">
-        <span class="sidebar-app-title">1. Báo cáo Khoa Vi sinh</span>
-        <span class="sidebar-app-category">Tổng hợp báo cáo</span>
+        <span class="sidebar-app-title sidebar-special-report-title">Báo cáo khoa Vi sinh</span>
+        <span class="sidebar-app-category sidebar-special-report-sub">Tổng hợp báo cáo</span>
       </div>
+      <span class="sidebar-special-badge">NỔI BẬT</span>
       <div class="sidebar-app-arrow">
         ${SVG_ICONS.ChevronRight}
       </div>
@@ -488,6 +592,11 @@ function renderSidebarApps() {
  * Xử lý khi nhấn vào 1 ứng dụng trên Sidebar
  */
 window.onSidebarAppClick = function(appId) {
+  if (isGuestUser()) {
+    notifyGuestRestricted('ứng dụng này');
+    return;
+  }
+
   const restricted = (window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.restrictedAppIds) 
     ? window.STAFF_AUTH_CONFIG.restrictedAppIds 
     : ['nhat-ky-cong-viec', 'quan-ly-tien-do-cong-viec', 'thong-ke-hoa-chat', 'quan-ly-kho'];
@@ -605,11 +714,16 @@ window.navigateToHome = function(event) {
 };
 
 /**
- * Xử lý khi nhấn vào "1. BÁO CÁO KHOA VI SINH" trên Sidebar
+ * Xử lý khi nhấn vào "BÁO CÁO KHOA VI SINH" trên Sidebar
  * Hiển thị bảng "Tổng Hợp Báo Cáo Khoa Vi Sinh"
  */
 window.navigateToDepartmentReports = function(event) {
   if (event) event.preventDefault();
+
+  if (isGuestUser()) {
+    notifyGuestRestricted('Báo cáo khoa Vi sinh');
+    return;
+  }
 
   AppState.activeSidebarId = 'dept-reports';
   AppState.selectedAppCardId = null;
@@ -835,7 +949,7 @@ function createAppCardHtml(app) {
         </button>
 
         <!-- Nút Mở Tab Mới -->
-        <a href="${escapeHtml(app.url)}" target="_blank" rel="noopener noreferrer" class="btn-card-action btn-card-open" onclick="event.stopPropagation();" title="Mở trong tab riêng biệt">
+        <a href="${escapeHtml(app.url)}" target="_blank" rel="noopener noreferrer" class="btn-card-action btn-card-open" onclick="handleCardExternalOpen(event, '${escapeHtml(app.url)}')" title="Mở trong tab riêng biệt">
           ${SVG_ICONS.ExternalLink}
           <span>Mở Tab</span>
         </a>
@@ -850,10 +964,27 @@ function createAppCardHtml(app) {
 }
 
 /**
+ * Xử lý khi bấm nút Mở Tab trên thẻ (chặn tài khoản khách)
+ */
+window.handleCardExternalOpen = function(event, url) {
+  event.stopPropagation();
+  if (isGuestUser()) {
+    event.preventDefault();
+    notifyGuestRestricted('đường link ứng dụng');
+    return false;
+  }
+  return true;
+};
+
+/**
  * Click vào bất kỳ vị trí trên thẻ ứng dụng để chọn và làm nổi bật
  */
 window.onCardClick = function(event, appId) {
   if (event.target.closest('.btn-card-action') || event.target.closest('.btn-card-qr')) return;
+  if (isGuestUser()) {
+    notifyGuestRestricted('ứng dụng này');
+    return;
+  }
   onSidebarAppClick(appId);
 };
 
@@ -861,6 +992,11 @@ window.onCardClick = function(event, appId) {
  * Bộ xem trực tiếp ứng dụng (In-Portal Viewer)
  */
 window.openAppViewer = function(appId) {
+  if (isGuestUser()) {
+    notifyGuestRestricted('ứng dụng này');
+    return;
+  }
+
   const restricted = (window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.restrictedAppIds) 
     ? window.STAFF_AUTH_CONFIG.restrictedAppIds 
     : ['nhat-ky-cong-viec', 'quan-ly-tien-do-cong-viec', 'thong-ke-hoa-chat', 'quan-ly-kho'];
@@ -951,6 +1087,11 @@ window.reloadViewerIframe = function() {
  * Quét mã QR
  */
 window.showQrModal = function(url, appName) {
+  if (isGuestUser()) {
+    notifyGuestRestricted('mã QR ứng dụng');
+    return;
+  }
+
   const modal = document.getElementById('qrModal');
   const modalTitle = document.getElementById('qrModalTitle');
   const qrImageWrap = document.getElementById('qrImageWrap');

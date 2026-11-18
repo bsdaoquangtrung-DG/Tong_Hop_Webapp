@@ -179,6 +179,18 @@
       
       <!-- GIAO DIỆN CHÍNH: GIỚI THIỆU TỔNG THỂ TOÀN BỘ HỆ SINH THÁI WEBAPP VI SINH -->
       <section class="ecosystem-intro-section" id="homeOverview">
+
+        <!-- Banner cảnh báo dành riêng cho Tài khoản khách -->
+        <div id="guestNoticeBanner" class="guest-notice-banner" style="display: none;">
+          <div class="guest-notice-content">
+            <span class="guest-notice-icon">🔒</span>
+            <div class="guest-notice-text">
+              <strong>Chế độ Tài khoản khách:</strong> Quý vị đang xem giao diện và thông tin giới thiệu trang chủ. Để truy cập các ứng dụng xét nghiệm và xem tài liệu báo cáo, vui lòng 
+              <button type="button" class="btn-guest-login-link" onclick="showAuthModal()">Đăng nhập cán bộ tại đây ↗</button>
+            </div>
+          </div>
+        </div>
+
         <div class="intro-glass-card">
 
           <!-- Header Giới thiệu Cổng thông tin kết hợp Logo Bệnh viện -->
@@ -969,6 +981,21 @@
               <line x1="15" y1="12" x2="3" y2="12"/>
             </svg>
           </button>
+
+          <!-- TÙY CHỌN TRUY CẬP: VÀO BẰNG TÀI KHOẢN KHÁCH (CHỈ XEM GIAO DIỆN & GIỚI THIỆU TRANG CHỦ) -->
+          <div class="auth-guest-section">
+            <div class="auth-divider-line auth-guest-divider">
+              <span>HOẶC TRUY CẬP KHÔNG CẦN ĐĂNG NHẬP</span>
+            </div>
+            <button type="button" class="btn-auth-guest" id="btnAuthGuest" onclick="loginAsGuest()" title="Vào xem giao diện và giới thiệu trang chủ">
+              <span class="guest-btn-icon">👁️</span>
+              <div class="guest-btn-content">
+                <span class="guest-btn-title">Vào bằng tài khoản khách</span>
+                <span class="guest-btn-desc">Chỉ xem giao diện & thông tin giới thiệu trang chủ</span>
+              </div>
+              <span class="guest-btn-tag">Khách ➔</span>
+            </button>
+          </div>
         </form>
 
         <div class="auth-footer-notes">

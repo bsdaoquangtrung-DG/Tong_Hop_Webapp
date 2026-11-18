@@ -37,8 +37,8 @@ const STAFF_AUTH_CONFIG = {
       roleText: 'Trưởng khoa',
       email: 'bsdaoquangtrung@gmail.com',
       aliases: ['bsdaoquangtrung'],
-      authPassword: 'Admin',
-      passwords: ['Admin', 'admin', 'ADMIN', 'Trưởng khoa', 'Trưởng Khoa', 'truong khoa', 'UserT', 'AdminT', 'daoquangtrung'],
+      authPassword: 'Admintrung',
+      passwords: ['Admintrung', 'admintrung', 'ADMINTRUNG', ' Admintrung', 'Admintrung ', 'Trưởng khoa', 'Trưởng Khoa', 'truong khoa', 'daoquangtrung'],
       isAdmin: true,
       canQuickSelect: false // BẢO MẬT: Không xuất hiện trong dropdown chọn nhanh
     },
