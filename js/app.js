@@ -22,7 +22,9 @@ const AppState = {
   currentViewingApp: null,
   departmentReports: [],
   reportYears: ["2024", "2025", "2026"],
-  reportSearchQuery: ''
+  reportSearchQuery: '',
+  otherLinks: [],
+  otherLinkSearchQuery: ''
 };
 
 // SVG Icons chuẩn y tế và chuyên môn vi sinh
@@ -345,8 +347,9 @@ function initData() {
 
   AppState.categories = (window.PORTAL_CONFIG && window.PORTAL_CONFIG.categories) ? [...window.PORTAL_CONFIG.categories] : [];
 
-  // Nạp dữ liệu Báo Cáo Khoa Vi Sinh
+  // Nạp dữ liệu Báo Cáo Khoa Vi Sinh & Liên Kết Khác
   initReportsData();
+  initOtherLinksData();
 }
 
 /**
@@ -409,6 +412,7 @@ function renderAll() {
   renderCategoryTabs();
   renderAppsGrid();
   renderDepartmentReportsTable();
+  renderOtherLinksTable();
 }
 
 /**
@@ -635,8 +639,9 @@ window.navigateToDepartmentReports = function(event) {
   // 3. Đóng drawer mobile nếu đang mở
   toggleSidebar(false);
 
-  // 4. Render Bảng Báo Cáo
+  // 4. Render Bảng Báo Cáo & Bảng Link Liên Kết Khác
   renderDepartmentReportsTable();
+  renderOtherLinksTable();
 
   // 5. Cuộn mượt lên đầu bảng
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -966,7 +971,9 @@ window.showQrModal = function(url, appName) {
  */
 window.closeAllModals = function() {
   document.querySelectorAll('.modal-backdrop').forEach(modal => {
+    if (modal.id === 'authModal' && !AppState.currentUser) return;
     modal.classList.remove('open');
+    modal.style.display = 'none';
   });
 };
 
@@ -1834,4 +1841,399 @@ window.moveReportDown = function(reportId) {
 
   saveDepartmentReportsToStorage();
   renderDepartmentReportsTable();
+};
+
+/* ==========================================================================
+   BẢNG THỨ HAI: BẢNG TỔNG HỢP LINK LIÊN KẾT KHÁC
+   Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang
+   - Hiển thị các liên kết tra cứu, tài liệu, quy chuẩn chuyên ngành
+   - Cột: STT, Nội dung, Đường Link ("Mở Link"), Lưu ý (chữ đỏ nghiêng nhỏ)
+   - Phân quyền: Mọi người đều xem được; Chỉ Admin được Thêm, Sửa, Xóa (có xác nhận), Sắp xếp vị trí hàng
+   ========================================================================== */
+
+/**
+ * Khởi tạo dữ liệu Bảng Link Liên Kết Khác
+ */
+function initOtherLinksData() {
+  const defaultCfg = window.REPORTS_CONFIG || {};
+  const defaultOtherLinks = defaultCfg.defaultOtherLinks || [];
+  const storageKey = defaultCfg.otherLinksStorageKey || 'bvdkg_other_links_v1';
+
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        AppState.otherLinks = parsed;
+      } else {
+        AppState.otherLinks = [...defaultOtherLinks];
+      }
+    } catch (e) {
+      AppState.otherLinks = [...defaultOtherLinks];
+    }
+  } else {
+    AppState.otherLinks = [...defaultOtherLinks];
+  }
+}
+
+/**
+ * Lưu danh sách Link Liên Kết Khác vào LocalStorage
+ */
+function saveOtherLinksToStorage() {
+  const defaultCfg = window.REPORTS_CONFIG || {};
+  const storageKey = defaultCfg.otherLinksStorageKey || 'bvdkg_other_links_v1';
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(AppState.otherLinks));
+  } catch (e) {
+    console.error('Lỗi lưu liên kết khác vào localStorage:', e);
+  }
+}
+
+/**
+ * RENDER BẢNG TỔNG HỢP LINK LIÊN KẾT KHÁC
+ */
+function renderOtherLinksTable() {
+  const table = document.getElementById('otherLinksDataTable');
+  if (!table) return;
+
+  const isAdmin = AppState.currentUser && AppState.currentUser.isAdmin;
+  const query = (AppState.otherLinkSearchQuery || '').toLowerCase().trim();
+
+  // 1. Nút Thêm mới: Chỉ hiển thị cho Admin
+  const btnAdd = document.getElementById('btnAdminAddOtherLink');
+  if (btnAdd) {
+    btnAdd.style.display = isAdmin ? 'inline-flex' : 'none';
+  }
+
+  // 2. Lọc dữ liệu theo ô tìm kiếm
+  const filtered = AppState.otherLinks.filter(item => {
+    if (!query) return true;
+    const matchContent = (item.content || '').toLowerCase().includes(query);
+    const matchNotes = (item.notes || '').toLowerCase().includes(query);
+    const matchUrl = (item.url || '').toLowerCase().includes(query);
+    return matchContent || matchNotes || matchUrl;
+  });
+
+  // 3. Render Header bảng
+  // Cột 1: STT
+  // Cột 2: Nội dung
+  // Cột 3: Đường Link (Giao diện hiển thị nút "Mở Link")
+  // Cột 4: Lưu ý (Chỉ Admin mới có quyền thêm/sửa nội dung)
+  // Cột 5: Thao tác & Vị trí (Dành riêng cho Admin)
+  const theadHtml = `
+    <thead>
+      <tr class="header-main-row">
+        <th class="th-stt" style="width: 55px;">STT</th>
+        <th class="th-content" style="min-width: 280px;">Nội dung</th>
+        <th class="th-link text-center" style="width: 140px;">Đường Link</th>
+        <th class="th-notes" style="min-width: 240px;">
+          <span>Lưu ý</span>
+          <span class="th-note-tag" title="Chỉ Admin mới có quyền thêm/sửa nội dung cột này">Admin</span>
+        </th>
+        ${isAdmin ? `<th class="th-actions text-center" style="width: 170px;">Thao tác & Vị trí</th>` : ''}
+      </tr>
+    </thead>
+  `;
+
+  // 4. Render Body bảng
+  let tbodyHtml = '';
+  if (filtered.length === 0) {
+    const totalCols = isAdmin ? 5 : 4;
+    tbodyHtml = `
+      <tbody>
+        <tr>
+          <td colspan="${totalCols}" class="empty-table-cell">
+            <div class="empty-table-state">
+              <span class="empty-table-icon">🔗</span>
+              <p>Không tìm thấy liên kết nào phù hợp với yêu cầu tìm kiếm.</p>
+              ${isAdmin ? `<button type="button" class="btn-report-primary" onclick="openAddOtherLinkModal()">➕ Thêm mới liên kết ngay</button>` : ''}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    `;
+  } else {
+    tbodyHtml = `
+      <tbody>
+        ${filtered.map((item, idx) => {
+          const isFirst = (idx === 0);
+          const isLast = (idx === filtered.length - 1);
+          const link = (item.url || '').trim();
+
+          return `
+            <tr class="report-row" id="other-link-row-${item.id}">
+              <td class="td-stt text-center font-bold">${idx + 1}</td>
+              <td class="td-content">
+                <div class="report-content-box">
+                  <span class="report-doc-icon">🌐</span>
+                  <span class="report-content-title">${escapeHtml(item.content)}</span>
+                </div>
+              </td>
+              <td class="td-link text-center">
+                ${link ? `
+                  <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="tbl-report-link tbl-open-link-btn" title="Mở liên kết trong tab mới">
+                    <span class="link-label">Mở Link</span>
+                    <span class="link-icon">↗</span>
+                  </a>
+                ` : `<span class="tbl-no-link" title="Chưa cập nhật đường link">—</span>`}
+              </td>
+              <td class="td-notes">
+                ${item.notes ? `
+                  <div class="report-note-bubble">
+                    <span class="note-pin">📌</span>
+                    <span>${escapeHtml(item.notes)}</span>
+                  </div>
+                ` : `<span class="tbl-no-link">—</span>`}
+              </td>
+              ${isAdmin ? `
+                <td class="td-actions text-center">
+                  <div class="table-actions-cluster">
+                    <!-- Cụm nút di chuyển thứ tự hàng lên / xuống -->
+                    <div class="table-reorder-group" title="Admin: Chuyển vị trí hàng">
+                      <button type="button" 
+                              class="btn-row-order ${isFirst ? 'disabled' : ''}" 
+                              onclick="moveOtherLinkUp('${item.id}')" 
+                              ${isFirst ? 'disabled' : ''} 
+                              title="${isFirst ? 'Đã ở vị trí đầu tiên' : 'Chuyển hàng lên trên'}">
+                        ▲
+                      </button>
+                      <button type="button" 
+                              class="btn-row-order ${isLast ? 'disabled' : ''}" 
+                              onclick="moveOtherLinkDown('${item.id}')" 
+                              ${isLast ? 'disabled' : ''} 
+                              title="${isLast ? 'Đã ở vị trí cuối cùng' : 'Chuyển hàng xuống dưới'}">
+                        ▼
+                      </button>
+                    </div>
+                    <button type="button" class="btn-action-edit" onclick="onAdminEditOtherLinkClick('${item.id}')" title="Sửa liên kết (Cần xác nhận)">
+                      ✏️ Sửa
+                    </button>
+                    <button type="button" class="btn-action-del" onclick="onAdminDeleteOtherLinkClick('${item.id}')" title="Xóa liên kết (Cần xác nhận)">
+                      🗑️ Xóa
+                    </button>
+                  </div>
+                </td>
+              ` : ''}
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    `;
+  }
+
+  table.innerHTML = theadHtml + tbodyHtml;
+}
+
+/**
+ * THÊM MỚI LIÊN KẾT KHÁC (CHỈ ADMIN ĐƯỢC DÙNG)
+ */
+window.openAddOtherLinkModal = function() {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền sử dụng chức năng Thêm mới liên kết.');
+    return;
+  }
+
+  const modal = document.getElementById('otherLinkModal');
+  const titleEl = document.getElementById('otherLinkModalTitle');
+  const editIdInput = document.getElementById('otherLinkEditId');
+  const contentInput = document.getElementById('otherLinkContentInput');
+  const urlInput = document.getElementById('otherLinkUrlInput');
+  const notesInput = document.getElementById('otherLinkNotesInput');
+
+  if (!modal) return;
+
+  if (titleEl) titleEl.textContent = '➕ Thêm Mới Link Liên Kết Khác';
+  if (editIdInput) editIdInput.value = '';
+  if (contentInput) contentInput.value = '';
+  if (urlInput) urlInput.value = '';
+  if (notesInput) {
+    notesInput.value = '';
+    notesInput.removeAttribute('disabled');
+  }
+
+  modal.style.display = 'flex';
+};
+
+/**
+ * SỬA LIÊN KẾT KHÁC (CHỈ ADMIN + HỎI XÁC NHẬN TRƯỚC KHI SỬA)
+ */
+window.onAdminEditOtherLinkClick = function(linkId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền Sửa nội dung liên kết.');
+    return;
+  }
+
+  const item = AppState.otherLinks.find(l => l.id === linkId);
+  if (!item) return;
+
+  const isConfirmed = confirm(`XÁC NHẬN CHỈNH SỬA LIÊN KẾT:\n\nBạn có chắc chắn muốn chỉnh sửa liên kết:\n"${item.content}" không?`);
+  if (!isConfirmed) return;
+
+  openEditOtherLinkModal(item);
+};
+
+window.openEditOtherLinkModal = function(item) {
+  const modal = document.getElementById('otherLinkModal');
+  const titleEl = document.getElementById('otherLinkModalTitle');
+  const editIdInput = document.getElementById('otherLinkEditId');
+  const contentInput = document.getElementById('otherLinkContentInput');
+  const urlInput = document.getElementById('otherLinkUrlInput');
+  const notesInput = document.getElementById('otherLinkNotesInput');
+
+  if (!modal) return;
+
+  if (titleEl) titleEl.textContent = '✏️ Chỉnh Sửa Link Liên Kết Khác';
+  if (editIdInput) editIdInput.value = item.id;
+  if (contentInput) contentInput.value = item.content || '';
+  if (urlInput) urlInput.value = item.url || '';
+  if (notesInput) {
+    notesInput.value = item.notes || '';
+    notesInput.removeAttribute('disabled');
+  }
+
+  modal.style.display = 'flex';
+};
+
+/**
+ * ĐÓNG MODAL LIÊN KẾT KHÁC
+ */
+window.closeOtherLinkModal = function() {
+  const modal = document.getElementById('otherLinkModal');
+  if (modal) modal.style.display = 'none';
+};
+
+/**
+ * XỬ LÝ LƯU LIÊN KẾT KHÁC (THÊM MỚI HOẶC CẬP NHẬT)
+ */
+window.handleOtherLinkFormSubmit = function(event) {
+  event.preventDefault();
+
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền lưu thông tin liên kết!');
+    return;
+  }
+
+  const editId = document.getElementById('otherLinkEditId').value.trim();
+  const content = document.getElementById('otherLinkContentInput').value.trim();
+  const url = document.getElementById('otherLinkUrlInput').value.trim();
+  const notes = document.getElementById('otherLinkNotesInput').value.trim();
+
+  if (!content) {
+    alert('Vui lòng nhập nội dung liên kết!');
+    return;
+  }
+  if (!url) {
+    alert('Vui lòng nhập đường link liên kết!');
+    return;
+  }
+
+  if (editId) {
+    // Cập nhật liên kết đã có
+    const index = AppState.otherLinks.findIndex(l => l.id === editId);
+    if (index !== -1) {
+      AppState.otherLinks[index] = {
+        ...AppState.otherLinks[index],
+        content,
+        url,
+        notes // Cột lưu ý chỉ Admin mới có quyền cập nhật
+      };
+      alert('✓ Đã cập nhật thành công thông tin liên kết!');
+    }
+  } else {
+    // Thêm mới liên kết
+    const newLink = {
+      id: 'other_link_' + Date.now(),
+      content,
+      url,
+      notes // Cột lưu ý chỉ Admin mới có quyền thêm nội dung
+    };
+    AppState.otherLinks.push(newLink);
+    alert('✓ Đã thêm mới thành công liên kết vào hệ thống!');
+  }
+
+  saveOtherLinksToStorage();
+  closeOtherLinkModal();
+  renderOtherLinksTable();
+};
+
+/**
+ * XÓA LIÊN KẾT KHÁC (CHỈ ADMIN + HỎI XÁC NHẬN TRƯỚC KHI XÓA)
+ */
+window.onAdminDeleteOtherLinkClick = function(linkId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền Xóa liên kết.');
+    return;
+  }
+
+  const item = AppState.otherLinks.find(l => l.id === linkId);
+  if (!item) return;
+
+  const isConfirmed = confirm(`⚠️ CẢNH BÁO QUẢN TRỊ VIÊN:\n\nBạn có chắc chắn muốn XÓA VĨNH VIỄN liên kết:\n"${item.content}" không?\n\nThao tác này không thể hoàn tác!`);
+  if (!isConfirmed) return;
+
+  AppState.otherLinks = AppState.otherLinks.filter(l => l.id !== linkId);
+  saveOtherLinksToStorage();
+  renderOtherLinksTable();
+  alert(`✓ Đã xóa thành công liên kết: "${item.content}"`);
+};
+
+/**
+ * THAY ĐỔI VỊ TRÍ HÀNG LIÊN KẾT KHÁC: CHUYỂN LÊN TRÊN (CHỈ ADMIN)
+ */
+window.moveOtherLinkUp = function(linkId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền sắp xếp thứ tự hàng.');
+    return;
+  }
+
+  const idx = AppState.otherLinks.findIndex(l => l.id === linkId);
+  if (idx <= 0) return; // Đã ở đầu danh sách
+
+  const temp = AppState.otherLinks[idx];
+  AppState.otherLinks[idx] = AppState.otherLinks[idx - 1];
+  AppState.otherLinks[idx - 1] = temp;
+
+  saveOtherLinksToStorage();
+  renderOtherLinksTable();
+};
+
+/**
+ * THAY ĐỔI VỊ TRÍ HÀNG LIÊN KẾT KHÁC: CHUYỂN XUỐNG DƯỚI (CHỈ ADMIN)
+ */
+window.moveOtherLinkDown = function(linkId) {
+  if (!AppState.currentUser || !AppState.currentUser.isAdmin) {
+    alert('⚠️ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nChỉ tài khoản Admin mới có quyền sắp xếp thứ tự hàng.');
+    return;
+  }
+
+  const idx = AppState.otherLinks.findIndex(l => l.id === linkId);
+  if (idx === -1 || idx >= AppState.otherLinks.length - 1) return; // Đã ở cuối danh sách
+
+  const temp = AppState.otherLinks[idx];
+  AppState.otherLinks[idx] = AppState.otherLinks[idx + 1];
+  AppState.otherLinks[idx + 1] = temp;
+
+  saveOtherLinksToStorage();
+  renderOtherLinksTable();
+};
+
+/**
+ * TÌM KIẾM LIÊN KẾT KHÁC
+ */
+window.onOtherLinkSearchInput = function(val) {
+  AppState.otherLinkSearchQuery = (val || '').trim();
+  const clearBtn = document.getElementById('btnClearOtherLinkSearch');
+  if (clearBtn) {
+    clearBtn.style.display = AppState.otherLinkSearchQuery ? 'flex' : 'none';
+  }
+  renderOtherLinksTable();
+};
+
+window.clearOtherLinkSearch = function() {
+  const input = document.getElementById('otherLinkSearchInput');
+  const clearBtn = document.getElementById('btnClearOtherLinkSearch');
+  if (input) input.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  AppState.otherLinkSearchQuery = '';
+  renderOtherLinksTable();
 };

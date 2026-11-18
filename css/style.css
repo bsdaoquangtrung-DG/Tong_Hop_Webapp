@@ -3745,3 +3745,28 @@ body.sky-blue-theme {
     grid-template-columns: 1fr;
   }
 }
+
+/* BẢNG TỔNG HỢP LINK LIÊN KẾT KHÁC */
+.badge-links-icon {
+  background: linear-gradient(135deg, #0D9488 0%, #047857 100%) !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.28) !important;
+}
+
+.tbl-open-link-btn {
+  background: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+  font-weight: 700 !important;
+}
+
+.tbl-open-link-btn:hover {
+  background: #059669 !important;
+  border-color: #059669 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.25) !important;
+}
+
+.modal-md {
+  max-width: 580px;
+  width: 95%;
+}

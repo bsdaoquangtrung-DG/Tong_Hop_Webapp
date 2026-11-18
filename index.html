@@ -496,6 +496,65 @@
           </div>
 
         </div>
+
+        <!-- ==================== BẢNG THỨ HAI: BẢNG TỔNG HỢP LINK LIÊN KẾT KHÁC ==================== -->
+        <div class="reports-container-card other-links-card" style="margin-top: 1.75rem;">
+          
+          <!-- Header của Bảng Link Liên Kết Khác -->
+          <div class="reports-header-box">
+            <div class="reports-header-top">
+              <div class="reports-title-wrap">
+                <div class="reports-badge-icon badge-links-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="reports-title">BẢNG TỔNG HỢP LINK LIÊN KẾT KHÁC</h2>
+                  <p class="reports-subtitle">Khoa Vi sinh • Tổng hợp các liên kết tra cứu, tài liệu và trang nghiệp vụ liên quan</p>
+                </div>
+              </div>
+
+              <!-- Nhóm nút chức năng quản trị: Chỉ Admin -->
+              <div class="reports-actions-group">
+                <button type="button" class="btn-report-primary" id="btnAdminAddOtherLink" onclick="openAddOtherLinkModal()" style="display:none;" title="Thêm mới liên kết (Chỉ dành cho Admin)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Thêm mới</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Thanh tìm kiếm nhanh liên kết khác -->
+            <div class="reports-subbar">
+              <div class="reports-search-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input type="text" id="otherLinkSearchInput" class="report-search-field" placeholder="Tìm theo nội dung liên kết, lưu ý..." oninput="onOtherLinkSearchInput(this.value)">
+                <button type="button" id="btnClearOtherLinkSearch" class="btn-clear-report-search" onclick="clearOtherLinkSearch()" style="display:none;" title="Xóa tìm kiếm">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bảng Dữ Liệu Link Liên Kết Khác -->
+          <div class="reports-table-wrapper">
+            <table class="reports-table" id="otherLinksDataTable">
+              <!-- Render động qua JavaScript -->
+            </table>
+          </div>
+
+          <!-- Chú thích chân bảng -->
+          <div class="reports-footer-notes">
+            <div class="reports-note-item">
+              <span class="note-bullet">🔗</span>
+              <span><strong>Đường link liên kết:</strong> Bấm vào nút <strong>"Mở Link ↗"</strong> để truy cập trực tiếp website hoặc file tài liệu trong tab mới.</span>
+            </div>
+          </div>
+
+        </div>
       </section>
 
       <!-- ==================== 6. FOOTER THÔNG TIN NGƯỜI PHỤ TRÁCH ==================== -->
@@ -707,6 +766,65 @@
         <div class="modal-footer justify-between">
           <button type="button" class="btn-admin-compact" onclick="closeReportModal()">Hủy bỏ</button>
           <button type="submit" class="btn-save-primary" id="btnSaveReport">💾 Lưu thông tin báo cáo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: THÊM MỚI / CHỈNH SỬA LINK LIÊN KẾT KHÁC ==================== -->
+  <div class="modal-backdrop" id="otherLinkModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-container modal-md">
+      <div class="modal-header">
+        <div class="modal-title" id="otherLinkModalTitle">➕ Thêm Mới Link Liên Kết Khác</div>
+        <button type="button" class="btn-modal-close" onclick="closeOtherLinkModal()">✕</button>
+      </div>
+
+      <form id="otherLinkForm" onsubmit="handleOtherLinkFormSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="otherLinkEditId" value="">
+
+          <!-- Cột 2: Nội dung -->
+          <div class="auth-form-group">
+            <label for="otherLinkContentInput" class="auth-form-label">
+              <span>📝 Nội dung liên kết: <strong class="text-danger">*</strong></span>
+              <span class="auth-input-hint">(Tên trang web, tài liệu cần tổng hợp)</span>
+            </label>
+            <input type="text" 
+                   id="otherLinkContentInput" 
+                   class="auth-input-field" 
+                   placeholder="Ví dụ: Cổng thông tin điện tử Bệnh viện Đa khoa Đức Giang..." 
+                   required>
+          </div>
+
+          <!-- Cột 3: Đường Link (Mở Link) -->
+          <div class="auth-form-group">
+            <label for="otherLinkUrlInput" class="auth-form-label">
+              <span>🔗 Đường Link: <strong class="text-danger">*</strong></span>
+              <span class="auth-input-hint">(Nhập link web https://...)</span>
+            </label>
+            <input type="url" 
+                   id="otherLinkUrlInput" 
+                   class="auth-input-field" 
+                   placeholder="https://..." 
+                   required>
+          </div>
+
+          <!-- Cột 4: Lưu ý (Chỉ Admin mới có quyền thêm nội dung) -->
+          <div class="auth-form-group">
+            <label for="otherLinkNotesInput" class="auth-form-label">
+              <span>📌 Lưu ý:</span>
+              <span class="auth-input-hint text-amber">🔒 Chỉ Admin có quyền thêm/sửa nội dung cột này</span>
+            </label>
+            <textarea id="otherLinkNotesInput" 
+                      class="auth-input-field report-textarea" 
+                      rows="2" 
+                      placeholder="Ghi chú, mục đích liên kết, hướng dẫn truy cập..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer justify-between">
+          <button type="button" class="btn-admin-compact" onclick="closeOtherLinkModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-save-primary" id="btnSaveOtherLink">💾 Lưu thông tin liên kết</button>
         </div>
       </form>
     </div>

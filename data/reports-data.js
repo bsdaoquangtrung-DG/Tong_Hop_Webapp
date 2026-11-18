@@ -1,8 +1,9 @@
 /**
- * CẤU HÌNH DỮ LIỆU TỔNG HỢP BÁO CÁO KHOA VI SINH
+ * CẤU HÌNH DỮ LIỆU TỔNG HỢP BÁO CÁO KHOA VI SINH & LINK LIÊN KẾT KHÁC
  * KHOA VI SINH – BỆNH VIỆN ĐA KHOA ĐỨC GIANG
  * 
- * Bảng liên kết các link báo cáo chuyên ngành theo từng năm
+ * Bảng 1: Bảng liên kết các link báo cáo chuyên ngành theo từng năm
+ * Bảng 2: Bảng Tổng Hợp Link Liên Kết Khác
  * Phân quyền: Mọi cán bộ nhân viên đều xem được
  * Quyền Thêm mới, Sửa, Xóa và thêm cột Lưu ý: Dành riêng cho Admin
  */
@@ -12,6 +13,7 @@ const REPORTS_CONFIG = {
   subtitle: "Cổng liên kết và lưu trữ tập trung các link báo cáo chuyên môn Khoa Vi sinh – Bệnh viện Đa khoa Đức Giang",
   storageKey: "bvdkg_department_reports_v1",
   yearsStorageKey: "bvdkg_department_reports_years_v1",
+  otherLinksStorageKey: "bvdkg_other_links_v1",
   
   defaultYears: ["2024", "2025", "2026"],
 
@@ -92,6 +94,40 @@ const REPORTS_CONFIG = {
         "2026": ""
       },
       notes: "Ghi nhận đầy đủ biên bản họp giao ban và phân tích nguyên nhân gốc (RCA)."
+    }
+  ],
+
+  // BẢNG THỨ HAI: BẢNG TỔNG HỢP LINK LIÊN KẾT KHÁC
+  defaultOtherLinks: [
+    {
+      id: "other_link_1",
+      content: "Cổng thông tin điện tử Bệnh viện Đa khoa Đức Giang",
+      url: "https://benhvienducgiang.org.vn/",
+      notes: "Trang thông tin chính thức của Bệnh viện Đa khoa Đức Giang."
+    },
+    {
+      id: "other_link_2",
+      content: "Cổng thông tin Bộ Y tế Việt Nam (MOH)",
+      url: "https://moh.gov.vn/",
+      notes: "Tra cứu các văn bản quy phạm pháp luật, thông tư và hướng dẫn chuyên môn BYT."
+    },
+    {
+      id: "other_link_3",
+      content: "Thư viện Dược thư Quốc gia Việt Nam",
+      url: "https://duocthuquocgia.vn/",
+      notes: "Tra cứu danh mục thuốc, liều dùng, tương tác thuốc và kháng sinh điều trị."
+    },
+    {
+      id: "other_link_4",
+      content: "Hệ thống tiêu chuẩn quốc tế CLSI (Clinical and Laboratory Standards Institute)",
+      url: "https://clsi.org/",
+      notes: "Tiêu chuẩn phiên giải kết quả kháng sinh đồ vi sinh lâm sàng mới nhất."
+    },
+    {
+      id: "other_link_5",
+      content: "Hội Vi sinh lâm sàng & Kiểm soát nhiễm khuẩn Việt Nam",
+      url: "https://vnacc.org.vn/",
+      notes: "Tài liệu đào tạo, sinh hoạt khoa học và khuyến cáo chuyên ngành vi sinh."
     }
   ]
 };
