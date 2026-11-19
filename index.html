@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="css/style.css?v=20241119_02">
+  <link rel="stylesheet" href="css/style.css?v=20241119_03">
   <link rel="icon" type="image/png" href="assets/logo_ducgiang.png">
 </head>
 <body class="sky-blue-theme">
@@ -948,8 +948,8 @@
             </div>
           </div>
 
-          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ TỪ MENU THẢ (CHO PHÉP CHỌN CẢ 12 CÁN BỘ KỂ CẢ ADMIN) -->
-          <div class="auth-form-group quick-select-container">
+          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ TỪ MENU THẢ (ẨN THEO YÊU CẦU ĐỂ TẬP TRUNG VÀO DÃY AVATAR TRỰC QUAN) -->
+          <div class="auth-form-group quick-select-container" style="display: none !important;">
             <label for="quickStaffSelect" class="auth-label-highlight">
               <span class="quick-bolt">⚡</span>
               <span>Hoặc chọn cán bộ từ danh sách:</span>
@@ -982,14 +982,13 @@
           </div>
 
           <div class="auth-divider-line">
-            <span>HOẶC NHẬP THÔNG TIN TÀI KHOẢN</span>
+            <span>THÔNG TIN ĐĂNG NHẬP</span>
           </div>
 
           <!-- CHỨC NĂNG 2: TÊN ĐĂNG NHẬP (GMAIL) VỚI ICON AVATAR NHẬN DIỆN TRỰC QUAN -->
           <div class="auth-form-group">
             <label for="authEmail" class="auth-form-label">
               <span>📧 Tên đăng nhập:</span>
-              <span class="auth-input-hint">(Gmail trong danh sách nhân viên 2024)</span>
             </label>
             <div class="auth-input-wrapper auth-email-wrapper">
               <div class="auth-input-avatar-badge" id="authEmailAvatarBadge" title="Avatar nhận diện cán bộ">
@@ -1076,8 +1075,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="data/supabase-config.js"></script>
   <script src="data/apps-data.js"></script>
-  <script src="data/staff-auth.js?v=20241119_02"></script>
-  <script src="data/reports-data.js?v=20241119_02"></script>
-  <script src="js/app.js?v=20241119_02"></script>
+  <script src="data/staff-auth.js?v=20241119_03"></script>
+  <script src="data/reports-data.js?v=20241119_03"></script>
+  <script src="js/app.js?v=20241119_03"></script>
 </body>
 </html>
