@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initAuth() {
   populateQuickStaffSelect();
+  setupAuthEmailListener();
 
   // Kiểm tra phiên đăng nhập đã lưu trong localStorage (tài khoản cán bộ hoặc tài khoản khách)
   const savedSession = localStorage.getItem(AppState.authStorageKey);
@@ -64,6 +65,15 @@ function initAuth() {
     try {
       const user = JSON.parse(savedSession);
       if (user && (user.email || user.isGuest)) {
+        // Đồng bộ avatar mới nhất từ cấu hình nhân viên
+        if (!user.isGuest && window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.staffList) {
+          const matched = window.STAFF_AUTH_CONFIG.staffList.find(s => 
+            s.id === user.id || s.email.toLowerCase() === (user.email || '').toLowerCase()
+          );
+          if (matched && matched.avatar) {
+            user.avatar = matched.avatar;
+          }
+        }
         AppState.currentUser = user;
         hideAuthModal();
         updateAuthHeaderUI();
@@ -80,6 +90,64 @@ function initAuth() {
 
   // Nếu chưa có phiên đăng nhập: Hiện Auth Modal
   showAuthModal();
+}
+
+/**
+ * Lắng nghe ô nhập Tên đăng nhập (Gmail) để tự động nhận diện cán bộ và hiển thị Avatar logo
+ */
+function setupAuthEmailListener() {
+  const emailInput = document.getElementById('authEmail');
+  if (!emailInput || emailInput.dataset.avatarListenerBound) return;
+  emailInput.dataset.avatarListenerBound = 'true';
+
+  emailInput.addEventListener('input', function() {
+    const val = (this.value || '').trim().toLowerCase();
+    if (!val || !window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) {
+      updateLoginStaffPreview(null);
+      return;
+    }
+    const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => 
+      s.email.toLowerCase() === val || 
+      (s.aliases && s.aliases.some(a => a.toLowerCase() === val))
+    );
+    updateLoginStaffPreview(staff || null);
+  });
+}
+
+/**
+ * Hiển thị Thẻ Logo ảnh / Avatar nhận diện cán bộ trên form đăng nhập
+ */
+function updateLoginStaffPreview(staff) {
+  const card = document.getElementById('authStaffPreviewCard');
+  const imgEl = document.getElementById('authPreviewAvatarImg');
+  const nameEl = document.getElementById('authPreviewName');
+  const roleEl = document.getElementById('authPreviewRole');
+  const emailEl = document.getElementById('authPreviewEmail');
+  const badgeEl = document.getElementById('authPreviewBadge');
+
+  if (!card) return;
+
+  if (staff && staff.avatar) {
+    if (imgEl) {
+      imgEl.src = staff.avatar;
+      imgEl.alt = `${staff.title || ''} ${staff.name}`.trim();
+    }
+    if (nameEl) nameEl.textContent = `${staff.title || ''} ${staff.name}`.trim();
+    if (roleEl) roleEl.textContent = `${staff.title || ''} – ${staff.roleText || ''}`.replace(/^[\s–]+/, '');
+    if (emailEl) emailEl.textContent = staff.email || '';
+    if (badgeEl) {
+      if (staff.isAdmin) {
+        badgeEl.className = 'auth-staff-preview-badge admin-badge';
+        badgeEl.innerHTML = '<span class="badge-icon">👑</span><span>Admin Trưởng khoa</span>';
+      } else {
+        badgeEl.className = 'auth-staff-preview-badge';
+        badgeEl.innerHTML = '<span class="badge-icon">✓</span><span>Cán bộ Vi sinh</span>';
+      }
+    }
+    card.style.display = 'flex';
+  } else {
+    card.style.display = 'none';
+  }
 }
 
 /**
@@ -152,23 +220,30 @@ window.onQuickStaffSelect = function(email) {
     if (feedbackEl) feedbackEl.style.display = 'none';
     if (emailInput) emailInput.value = '';
     if (pwdInput) pwdInput.value = '';
+    updateLoginStaffPreview(null);
     return;
   }
 
   if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
   const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => s.email === email);
-  if (!staff) return;
+  if (!staff) {
+    updateLoginStaffPreview(null);
+    return;
+  }
 
-  // 1. Chỉ giúp link nhập nhanh Tên đăng nhập (Gmail)
+  // 1. Link nhập nhanh Tên đăng nhập (Gmail)
   if (emailInput) emailInput.value = staff.email;
 
-  // 2. Mật khẩu bắt buộc người dùng tự nhập tay, xóa trống và focus để nhập an toàn
+  // 2. Hiển thị Logo ảnh / Avatar nhận diện cán bộ ngay lập tức
+  updateLoginStaffPreview(staff);
+
+  // 3. Mật khẩu bắt buộc người dùng tự nhập tay, xóa trống và focus để nhập an toàn
   if (pwdInput) {
     pwdInput.value = '';
     pwdInput.focus();
   }
 
-  // 3. Thông báo xác nhận chọn cán bộ an toàn (tuyệt đối không hiển thị gợi ý mật khẩu tránh bị lộ)
+  // 4. Thông báo xác nhận chọn cán bộ an toàn (tuyệt đối không hiển thị gợi ý mật khẩu tránh bị lộ)
   if (feedbackEl) {
     feedbackEl.innerHTML = `✓ Đã chọn: <strong>${escapeHtml(staff.title)} ${escapeHtml(staff.name)}</strong> (${escapeHtml(staff.roleText)}). Vui lòng <strong>tự nhập mật khẩu</strong> bên dưới để đăng nhập.`;
     feedbackEl.style.display = 'block';
@@ -231,6 +306,7 @@ window.handleAuthLoginSubmit = function(event) {
     title: staff.title,
     roleText: staff.roleText,
     email: staff.email,
+    avatar: staff.avatar || '',
     isAdmin: Boolean(staff.isAdmin)
   };
 
@@ -372,8 +448,13 @@ function updateAuthHeaderUI() {
       userRoleBadge.className = 'user-role-badge role-admin';
     }
     if (userAvatarBadge) {
-      userAvatarBadge.textContent = '👨‍⚕️';
-      userAvatarBadge.className = 'user-avatar-badge admin-avatar';
+      if (user.avatar) {
+        userAvatarBadge.innerHTML = `<img src="${user.avatar}" alt="${escapeHtml(user.name)}" class="user-avatar-photo"><span class="avatar-online-status" title="Đang trực tuyến"></span>`;
+        userAvatarBadge.className = 'user-avatar-badge has-photo admin-avatar';
+      } else {
+        userAvatarBadge.textContent = '👨‍⚕️';
+        userAvatarBadge.className = 'user-avatar-badge admin-avatar';
+      }
     }
     // Admin: Xem và dùng nút Quản trị
     if (btnOpenAdmin) {
@@ -386,8 +467,13 @@ function updateAuthHeaderUI() {
       userRoleBadge.className = 'user-role-badge';
     }
     if (userAvatarBadge) {
-      userAvatarBadge.textContent = '👤';
-      userAvatarBadge.className = 'user-avatar-badge';
+      if (user.avatar) {
+        userAvatarBadge.innerHTML = `<img src="${user.avatar}" alt="${escapeHtml(user.name)}" class="user-avatar-photo"><span class="avatar-online-status" title="Đang trực tuyến"></span>`;
+        userAvatarBadge.className = 'user-avatar-badge has-photo';
+      } else {
+        userAvatarBadge.textContent = '👤';
+        userAvatarBadge.className = 'user-avatar-badge';
+      }
     }
     // Nhân viên: Ẩn hoàn toàn nút Quản trị khỏi Header
     if (btnOpenAdmin) {
@@ -419,6 +505,7 @@ window.logout = function() {
     if (pwdInput) pwdInput.value = '';
     if (feedbackEl) feedbackEl.style.display = 'none';
     if (errorEl) errorEl.style.display = 'none';
+    updateLoginStaffPreview(null);
     showToast('Đã đăng xuất thành công.');
     renderAll();
   }
@@ -1545,7 +1632,16 @@ function renderDepartmentReportsTable() {
               </td>
               <td class="td-responsible">
                 <div class="resp-pill">
-                  <span class="resp-avatar-icon">👤</span>
+                  ${(() => {
+                    const respLower = (rep.responsible || '').toLowerCase();
+                    const matchedStaff = window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.staffList
+                      ? window.STAFF_AUTH_CONFIG.staffList.find(s => s.name && respLower.includes(s.name.toLowerCase()))
+                      : null;
+                    if (matchedStaff && matchedStaff.avatar) {
+                      return `<img src="${matchedStaff.avatar}" alt="${escapeHtml(rep.responsible)}" class="resp-avatar-photo">`;
+                    }
+                    return '<span class="resp-avatar-icon">👤</span>';
+                  })()}
                   <span class="resp-text">${escapeHtml(rep.responsible || 'Chưa cập nhật')}</span>
                 </div>
               </td>
