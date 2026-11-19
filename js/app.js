@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 
 function initAuth() {
+  renderAuthAvatarGrid();
   populateQuickStaffSelect();
   setupAuthEmailListener();
 
@@ -93,6 +94,78 @@ function initAuth() {
 }
 
 /**
+ * Render Lưới 12 Icon Avatar Ảnh Cán Bộ Nhân Viên Khoa Vi Sinh
+ */
+function renderAuthAvatarGrid() {
+  const gridEl = document.getElementById('authAvatarGrid');
+  if (!gridEl) return;
+  if (!window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) return;
+
+  const staffList = window.STAFF_AUTH_CONFIG.staffList;
+  gridEl.innerHTML = staffList.map(staff => {
+    const isAdmin = Boolean(staff.isAdmin);
+    const shortName = staff.shortName || (staff.name ? staff.name.split(' ').slice(-2).join(' ') : 'Cán bộ');
+    const avatarSrc = staff.avatar || 'assets/avatars/admin_trung.jpg';
+    const emailEsc = escapeHtml(staff.email);
+    const titleNameEsc = escapeHtml(`${staff.title || ''} ${staff.name}`.trim());
+    const roleEsc = escapeHtml(staff.roleText || '');
+
+    return `
+      <button type="button" 
+              class="auth-avatar-item ${isAdmin ? 'is-admin' : ''}" 
+              data-email="${emailEsc}"
+              onclick="selectStaffByAvatar('${emailEsc}')"
+              title="${titleNameEsc} (${roleEsc}) – Bấm để chọn nhanh">
+        <div class="auth-avatar-thumb-wrap">
+          <img src="${avatarSrc}" alt="${titleNameEsc}" class="auth-avatar-thumb" loading="lazy">
+          ${isAdmin ? '<span class="auth-avatar-crown" title="Trưởng khoa (Admin)">👑</span>' : ''}
+        </div>
+        <span class="auth-avatar-name">${escapeHtml(shortName)}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+/**
+ * Xử lý khi người dùng bấm trực tiếp vào Icon Avatar của cán bộ
+ */
+window.selectStaffByAvatar = function(email) {
+  onQuickStaffSelect(email);
+  highlightSelectedAvatar(email);
+};
+
+/**
+ * Đánh dấu viền phát sáng active cho Icon Avatar tương ứng
+ */
+function highlightSelectedAvatar(email) {
+  const normEmail = (email || '').trim().toLowerCase();
+  const items = document.querySelectorAll('.auth-avatar-item');
+  items.forEach(item => {
+    const itemEmail = (item.dataset.email || '').toLowerCase();
+    item.classList.toggle('active', Boolean(normEmail && itemEmail === normEmail));
+  });
+}
+
+/**
+ * Cập nhật Icon Avatar nhỏ trong ô Tên đăng nhập (Gmail)
+ */
+function updateAuthEmailInputBadge(staff) {
+  const imgEl = document.getElementById('authEmailAvatarImg');
+  const iconEl = document.getElementById('authEmailAvatarPlaceholder');
+  if (!imgEl || !iconEl) return;
+
+  if (staff && staff.avatar) {
+    imgEl.src = staff.avatar;
+    imgEl.alt = `${staff.title || ''} ${staff.name}`.trim();
+    imgEl.style.display = 'block';
+    iconEl.style.display = 'none';
+  } else {
+    imgEl.style.display = 'none';
+    iconEl.style.display = 'block';
+  }
+}
+
+/**
  * Lắng nghe ô nhập Tên đăng nhập (Gmail) để tự động nhận diện cán bộ và hiển thị Avatar logo
  */
 function setupAuthEmailListener() {
@@ -102,8 +175,12 @@ function setupAuthEmailListener() {
 
   emailInput.addEventListener('input', function() {
     const val = (this.value || '').trim().toLowerCase();
+    const selectEl = document.getElementById('quickStaffSelect');
     if (!val || !window.STAFF_AUTH_CONFIG || !window.STAFF_AUTH_CONFIG.staffList) {
       updateLoginStaffPreview(null);
+      updateAuthEmailInputBadge(null);
+      highlightSelectedAvatar(null);
+      if (selectEl) selectEl.value = '';
       return;
     }
     const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => 
@@ -111,6 +188,9 @@ function setupAuthEmailListener() {
       (s.aliases && s.aliases.some(a => a.toLowerCase() === val))
     );
     updateLoginStaffPreview(staff || null);
+    updateAuthEmailInputBadge(staff || null);
+    highlightSelectedAvatar(staff ? staff.email : null);
+    if (selectEl) selectEl.value = staff ? staff.email : '';
   });
 }
 
@@ -213,6 +293,7 @@ window.onQuickStaffSelect = function(email) {
   const errorEl = document.getElementById('authErrorMessage');
   const emailInput = document.getElementById('authEmail');
   const pwdInput = document.getElementById('authPassword');
+  const selectEl = document.getElementById('quickStaffSelect');
 
   if (errorEl) errorEl.style.display = 'none';
 
@@ -220,7 +301,10 @@ window.onQuickStaffSelect = function(email) {
     if (feedbackEl) feedbackEl.style.display = 'none';
     if (emailInput) emailInput.value = '';
     if (pwdInput) pwdInput.value = '';
+    if (selectEl) selectEl.value = '';
     updateLoginStaffPreview(null);
+    updateAuthEmailInputBadge(null);
+    highlightSelectedAvatar(null);
     return;
   }
 
@@ -228,14 +312,19 @@ window.onQuickStaffSelect = function(email) {
   const staff = window.STAFF_AUTH_CONFIG.staffList.find(s => s.email === email);
   if (!staff) {
     updateLoginStaffPreview(null);
+    updateAuthEmailInputBadge(null);
+    highlightSelectedAvatar(null);
     return;
   }
 
-  // 1. Link nhập nhanh Tên đăng nhập (Gmail)
+  // 1. Link nhập nhanh Tên đăng nhập (Gmail) và đồng bộ dropdown
   if (emailInput) emailInput.value = staff.email;
+  if (selectEl) selectEl.value = staff.email;
 
-  // 2. Hiển thị Logo ảnh / Avatar nhận diện cán bộ ngay lập tức
+  // 2. Hiển thị Logo ảnh / Avatar nhận diện cán bộ ngay lập tức (preview card + badge trong ô input)
   updateLoginStaffPreview(staff);
+  updateAuthEmailInputBadge(staff);
+  highlightSelectedAvatar(staff.email);
 
   // 3. Mật khẩu bắt buộc người dùng tự nhập tay, xóa trống và focus để nhập an toàn
   if (pwdInput) {
@@ -506,6 +595,8 @@ window.logout = function() {
     if (feedbackEl) feedbackEl.style.display = 'none';
     if (errorEl) errorEl.style.display = 'none';
     updateLoginStaffPreview(null);
+    updateAuthEmailInputBadge(null);
+    highlightSelectedAvatar(null);
     showToast('Đã đăng xuất thành công.');
     renderAll();
   }

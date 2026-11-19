@@ -934,12 +934,26 @@
 
         <form id="authLoginForm" onsubmit="handleAuthLoginSubmit(event)">
           
-          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ (CHO PHÉP CHỌN CẢ 12 CÁN BỘ KỂ CẢ ADMIN) -->
+          <!-- KHỐI DÃY ICON AVATAR ĐĂNG NHẬP ẢNH (12 CÁN BỘ VI SINH) -->
+          <div class="auth-avatar-selection-box">
+            <div class="auth-avatar-grid-header">
+              <div class="auth-avatar-grid-title">
+                <span class="avatar-title-icon">👥</span>
+                <span class="avatar-title-text">CHỌN NHANH QUA ICON AVATAR ẢNH:</span>
+              </div>
+              <span class="avatar-grid-sub">(12 cán bộ nhân viên)</span>
+            </div>
+            <div class="auth-avatar-grid" id="authAvatarGrid">
+              <!-- Sẽ render tự động 12 Icon Avatar tròn có ảnh chân dung và tên ngắn -->
+            </div>
+          </div>
+
+          <!-- CHỨC NĂNG 1: HOẶC CHỌN NHANH CÁN BỘ TỪ MENU THẢ (CHO PHÉP CHỌN CẢ 12 CÁN BỘ KỂ CẢ ADMIN) -->
           <div class="auth-form-group quick-select-container">
             <label for="quickStaffSelect" class="auth-label-highlight">
               <span class="quick-bolt">⚡</span>
-              <span>Hoặc chọn nhanh cán bộ:</span>
-              <span class="quick-sub-hint">(Nhập nhanh Tên đăng nhập)</span>
+              <span>Hoặc chọn cán bộ từ danh sách:</span>
+              <span class="quick-sub-hint">(Điền nhanh Tên đăng nhập)</span>
             </label>
             <div class="auth-select-wrapper">
               <select id="quickStaffSelect" class="auth-select" onchange="onQuickStaffSelect(this.value)">
@@ -971,16 +985,20 @@
             <span>HOẶC NHẬP THÔNG TIN TÀI KHOẢN</span>
           </div>
 
-          <!-- CHỨC NĂNG 2: TÊN ĐĂNG NHẬP (GMAIL) -->
+          <!-- CHỨC NĂNG 2: TÊN ĐĂNG NHẬP (GMAIL) VỚI ICON AVATAR NHẬN DIỆN TRỰC QUAN -->
           <div class="auth-form-group">
             <label for="authEmail" class="auth-form-label">
               <span>📧 Tên đăng nhập:</span>
               <span class="auth-input-hint">(Gmail trong danh sách nhân viên 2024)</span>
             </label>
-            <div class="auth-input-wrapper">
+            <div class="auth-input-wrapper auth-email-wrapper">
+              <div class="auth-input-avatar-badge" id="authEmailAvatarBadge" title="Avatar nhận diện cán bộ">
+                <img id="authEmailAvatarImg" src="" alt="" class="auth-input-avatar-img" style="display:none;">
+                <span id="authEmailAvatarPlaceholder" class="auth-input-avatar-icon">📧</span>
+              </div>
               <input type="text" 
                      id="authEmail" 
-                     class="auth-input-field" 
+                     class="auth-input-field auth-input-with-avatar" 
                      placeholder="Ví dụ: bsdaoquangtrung@gmail.com, vutrangbvdg@gmail.com..." 
                      autocomplete="username" 
                      required>
