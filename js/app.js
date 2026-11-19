@@ -69,13 +69,18 @@ function initAuth() {
         // Đồng bộ avatar mới nhất từ cấu hình nhân viên
         if (!user.isGuest && window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.staffList) {
           const matched = window.STAFF_AUTH_CONFIG.staffList.find(s => 
-            s.id === user.id || s.email.toLowerCase() === (user.email || '').toLowerCase()
+            (s.id && user.id && s.id === user.id) || 
+            (s.email && user.email && s.email.toLowerCase() === user.email.toLowerCase()) ||
+            (s.name && user.name && s.name.toLowerCase() === user.name.toLowerCase())
           );
           if (matched && matched.avatar) {
             user.avatar = matched.avatar;
           }
         }
         AppState.currentUser = user;
+        try {
+          localStorage.setItem(AppState.authStorageKey, JSON.stringify(user));
+        } catch (_) {}
         hideAuthModal();
         updateAuthHeaderUI();
         initData();
@@ -530,6 +535,18 @@ function updateAuthHeaderUI() {
     userDisplayName.title = `${user.title || ''} ${user.name} (${user.email || ''})`.trim();
   }
 
+  // Luôn bảo đảm lấy avatar chuẩn xác nhất từ danh sách cán bộ nhân viên
+  if (!user.isGuest && window.STAFF_AUTH_CONFIG && window.STAFF_AUTH_CONFIG.staffList) {
+    const matched = window.STAFF_AUTH_CONFIG.staffList.find(s => 
+      (s.id && user.id && s.id === user.id) || 
+      (s.email && user.email && s.email.toLowerCase() === user.email.toLowerCase()) ||
+      (s.name && user.name && s.name.toLowerCase() === user.name.toLowerCase())
+    );
+    if (matched && matched.avatar) {
+      user.avatar = matched.avatar;
+    }
+  }
+
   // 2. TRƯỜNG HỢP: TÀI KHOẢN ADMIN (BS.CKII. ĐÀO QUANG TRUNG)
   if (user.isAdmin) {
     if (userRoleBadge) {
@@ -537,13 +554,9 @@ function updateAuthHeaderUI() {
       userRoleBadge.className = 'user-role-badge role-admin';
     }
     if (userAvatarBadge) {
-      if (user.avatar) {
-        userAvatarBadge.innerHTML = `<img src="${user.avatar}" alt="${escapeHtml(user.name)}" class="user-avatar-photo"><span class="avatar-online-status" title="Đang trực tuyến"></span>`;
-        userAvatarBadge.className = 'user-avatar-badge has-photo admin-avatar';
-      } else {
-        userAvatarBadge.textContent = '👨‍⚕️';
-        userAvatarBadge.className = 'user-avatar-badge admin-avatar';
-      }
+      const adminAvatarSrc = user.avatar || 'assets/avatars/bsdaoquangtrung@gmail.com.jpg';
+      userAvatarBadge.innerHTML = `<img src="${adminAvatarSrc}" alt="${escapeHtml(user.name)}" class="user-avatar-photo" onerror="this.onerror=null; this.src='assets/admin_trung.jpg';"><span class="avatar-online-status" title="Đang trực tuyến"></span>`;
+      userAvatarBadge.className = 'user-avatar-badge has-photo admin-avatar';
     }
     // Admin: Xem và dùng nút Quản trị
     if (btnOpenAdmin) {
@@ -557,7 +570,7 @@ function updateAuthHeaderUI() {
     }
     if (userAvatarBadge) {
       if (user.avatar) {
-        userAvatarBadge.innerHTML = `<img src="${user.avatar}" alt="${escapeHtml(user.name)}" class="user-avatar-photo"><span class="avatar-online-status" title="Đang trực tuyến"></span>`;
+        userAvatarBadge.innerHTML = `<img src="${user.avatar}" alt="${escapeHtml(user.name)}" class="user-avatar-photo" onerror="this.onerror=null; this.src='assets/avatars/bsdaoquangtrung@gmail.com.jpg';"><span class="avatar-online-status" title="Đang trực tuyến"></span>`;
         userAvatarBadge.className = 'user-avatar-badge has-photo';
       } else {
         userAvatarBadge.textContent = '👤';
